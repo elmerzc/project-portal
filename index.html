@@ -18,8 +18,53 @@
       </div>
     </header>
 
+    <!-- Stats Bar -->
+    <div class="stats-bar" id="statsBar">
+      <div class="stat-card">
+        <span class="stat-value" id="statProjects">0</span>
+        <span class="stat-label">Projects</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value stat-green" id="statDone">0</span>
+        <span class="stat-label">Features Done</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value stat-yellow" id="statPending">0</span>
+        <span class="stat-label">Pending</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="statAvg">0%</span>
+        <span class="stat-label">Avg Progress</span>
+      </div>
+      <div class="stat-card stat-bar-card">
+        <div class="overall-progress-bar">
+          <div class="overall-progress-fill" id="overallFill"></div>
+        </div>
+        <span class="stat-label">Overall</span>
+      </div>
+    </div>
+
+    <!-- Toolbar: Search, Sort, Categories -->
+    <div class="toolbar">
+      <div class="search-wrap">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" stroke-width="1.5"/><line x1="10.5" y1="10.5" x2="15" y2="15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <input type="text" class="search-input" id="searchInput" placeholder="Search projects...">
+      </div>
+      <div class="toolbar-right">
+        <div class="sort-wrap">
+          <select class="sort-select" id="sortSelect">
+            <option value="progress">Sort: Progress</option>
+            <option value="name">Sort: Name</option>
+            <option value="updated">Sort: Last Updated</option>
+          </select>
+        </div>
+        <div class="category-filters" id="categoryFilters"></div>
+      </div>
+    </div>
+
     <main class="main">
       <div class="cards-grid" id="cardsGrid"></div>
+      <div class="no-results" id="noResults" style="display:none;">No projects match your search.</div>
     </main>
 
     <!-- Expanded Project Modal -->
@@ -27,10 +72,14 @@
       <div class="modal">
         <button class="modal-close" id="modalClose">&times;</button>
         <div class="modal-header">
-          <h2 class="modal-title" id="modalTitle"></h2>
+          <div class="modal-title-wrap">
+            <h2 class="modal-title" id="modalTitle"></h2>
+            <span class="category-tag" id="modalCategory"></span>
+          </div>
           <a class="modal-github" id="modalGithub" href="#" target="_blank" rel="noopener">View on GitHub &rarr;</a>
         </div>
         <p class="modal-desc" id="modalDesc"></p>
+        <div class="modal-meta" id="modalMeta"></div>
         <div class="modal-progress-wrap">
           <div class="progress-bar modal-progress-bar">
             <div class="progress-fill" id="modalProgressFill"></div>

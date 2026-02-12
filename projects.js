@@ -2,6 +2,7 @@ const PROJECTS = [
   {
     "name": "Classic Towing Voice AI",
     "description": "Three-assistant VAPI voice AI system (ARIA, Andi, Lucas) handling incoming calls for receptionist routing, dispatch tow requests, and storage inquiries at Classic Towing & Storage.",
+    "category": "voice-ai",
     "features": [
       {"name": "ARIA - Virtual Receptionist (call routing, staff lookup, reason lookup)", "done": true},
       {"name": "Andi - Dispatch Call-Taker (collect tow request details, submit to InTow)", "done": true},
@@ -25,11 +26,13 @@ const PROJECTS = [
       {"name": "Dashboard for call analytics", "done": false}
     ],
     "progress": 80,
-    "github_url": "https://github.com/elmerzc/Ai"
+    "github_url": "https://github.com/elmerzc/Ai",
+    "github_repo": "elmerzc/Ai"
   },
   {
     "name": "Andi",
     "description": "Voice AI dispatch assistant for Classic Towing that handles inbound tow request calls with address validation, account lookup, warm transfer to dispatch, and call memory for return callers.",
+    "category": "voice-ai",
     "features": [
       {"name": "Collect caller info and tow request details", "done": true},
       {"name": "Customer lookup with account codes", "done": true},
@@ -41,11 +44,13 @@ const PROJECTS = [
       {"name": "Email fallback for non-service calls", "done": true}
     ],
     "progress": 95,
-    "github_url": "https://github.com/elmerzc/Andi"
+    "github_url": "https://github.com/elmerzc/Andi",
+    "github_repo": "elmerzc/Andi"
   },
   {
     "name": "ARIA",
     "description": "Virtual receptionist voice AI for Classic Towing that routes incoming calls to the correct person, department, or specialized assistant (Lucas for storage, Andi for dispatch).",
+    "category": "voice-ai",
     "features": [
       {"name": "Storage/impound call detection and handoff to Lucas", "done": true},
       {"name": "Person lookup by name (staff_lookup)", "done": true},
@@ -59,11 +64,13 @@ const PROJECTS = [
       {"name": "Dispatch call routing", "done": true}
     ],
     "progress": 95,
-    "github_url": "https://github.com/elmerzc/Aria"
+    "github_url": "https://github.com/elmerzc/Aria",
+    "github_repo": "elmerzc/Aria"
   },
   {
     "name": "Aventureros",
     "description": "Web app for managing Club de Aventureros 'Toronto's 100' including member registration, award orders, payments, inventory tracking, and public sign-up.",
+    "category": "web-app",
     "features": [
       {"name": "Dashboard with metrics (members, orders, deliveries, collected)", "done": true},
       {"name": "Family and member management with membership levels", "done": true},
@@ -82,11 +89,13 @@ const PROJECTS = [
       {"name": "Historical data import from Excel", "done": false}
     ],
     "progress": 85,
-    "github_url": "https://github.com/elmerzc/Aventureros"
+    "github_url": "https://github.com/elmerzc/Aventureros",
+    "github_repo": "elmerzc/Aventureros"
   },
   {
     "name": "Claude Skills",
     "description": "Claude skill that processes InTow Manager CSV exports into color-coded Excel dispatch efficiency reports with performance categorization and driver rankings.",
+    "category": "workflow",
     "features": [
       {"name": "CSV parsing from InTow Manager exports", "done": true},
       {"name": "Dispatch duration calculation (Call Time to Dispatch Time)", "done": true},
@@ -98,11 +107,13 @@ const PROJECTS = [
       {"name": "Daily breakdowns for multi-day reports", "done": true}
     ],
     "progress": 100,
-    "github_url": "https://github.com/elmerzc/Claude-Skills"
+    "github_url": "https://github.com/elmerzc/Claude-Skills",
+    "github_repo": "elmerzc/Claude-Skills"
   },
   {
     "name": "Dispatch Portal",
     "description": "Real-time web-based driver check-in portal for tow truck dispatch that tracks driver shifts, call assignments, availability status, and generates shift reports with Firebase sync.",
+    "category": "web-app",
     "features": [
       {"name": "Authentication system (view-only + protected edits)", "done": true},
       {"name": "Driver check-in/sign-out management", "done": true},
@@ -120,11 +131,13 @@ const PROJECTS = [
       {"name": "Driver self check-in app", "done": false}
     ],
     "progress": 85,
-    "github_url": "https://github.com/elmerzc/dispatch-portal"
+    "github_url": "https://github.com/elmerzc/dispatch-portal",
+    "github_repo": "elmerzc/dispatch-portal"
   },
   {
     "name": "Driver Onboarding Portal",
     "description": "Portal for managing driver onboarding paperwork at Classic Towing with multi-step application forms for operators and contractors, document uploads, manager approval workflow, and role-based access.",
+    "category": "web-app",
     "features": [
       {"name": "Firebase project setup (Firestore, Storage, Auth)", "done": true},
       {"name": "Authentication and user management (4 roles)", "done": true},
@@ -142,11 +155,13 @@ const PROJECTS = [
       {"name": "Admin ExpiringDocuments page for applicant-specific docs", "done": false}
     ],
     "progress": 75,
-    "github_url": "https://github.com/elmerzc/driver-onboarding-portal"
+    "github_url": "https://github.com/elmerzc/driver-onboarding-portal",
+    "github_repo": "elmerzc/driver-onboarding-portal"
   },
   {
     "name": "Grok Voice Agent",
     "description": "Alternative voice AI receptionist using xAI's Grok Realtime API with Twilio to replace VAPI and reduce costs by ~60% while maintaining warm transfer capabilities.",
+    "category": "voice-ai",
     "features": [
       {"name": "Node.js + Fastify WebSocket server", "done": true},
       {"name": "xAI Grok Realtime API integration (Ara voice)", "done": true},
@@ -162,11 +177,13 @@ const PROJECTS = [
       {"name": "Spanish language support", "done": false}
     ],
     "progress": 85,
-    "github_url": "https://github.com/elmerzc/grok-voice-agent"
+    "github_url": "https://github.com/elmerzc/grok-voice-agent",
+    "github_repo": "elmerzc/grok-voice-agent"
   },
   {
     "name": "La Estrella",
     "description": "Mobile-friendly web inventory system for Ferreteria La Estrella hardware store in Guatemala, replacing manual Google Sheets with real-time Firebase app for sales, purchases, and stock management.",
+    "category": "web-app",
     "features": [
       {"name": "Firebase Firestore database with 1,819 products", "done": true},
       {"name": "Login system (admin + ventas roles)", "done": true},
@@ -185,11 +202,13 @@ const PROJECTS = [
       {"name": "Sales reports/analytics dashboard", "done": false}
     ],
     "progress": 75,
-    "github_url": "https://github.com/elmerzc/la-estrella"
+    "github_url": "https://github.com/elmerzc/la-estrella",
+    "github_repo": "elmerzc/la-estrella"
   },
   {
     "name": "Lucas",
     "description": "Voice AI storage assistant for Classic Towing that helps callers look up vehicles in storage, provides balances, release requirements, lot locations, and handles insurance/third-party release routing.",
+    "category": "voice-ai",
     "features": [
       {"name": "Vehicle lookup by VIN last 6 or plate", "done": true},
       {"name": "Storage balance from invoice data", "done": true},
@@ -205,11 +224,13 @@ const PROJECTS = [
       {"name": "Location-specific hours (Toronto 24/7 for owners)", "done": true}
     ],
     "progress": 95,
-    "github_url": "https://github.com/elmerzc/Lucas"
+    "github_url": "https://github.com/elmerzc/Lucas",
+    "github_repo": "elmerzc/Lucas"
   },
   {
     "name": "Max",
     "description": "SMS-based AI agent using Grok via n8n workflow that handles multi-turn text conversations for Classic Towing, with vehicle lookup, address validation, and conversation memory stored in Firebase.",
+    "category": "workflow",
     "features": [
       {"name": "Twilio SMS webhook integration", "done": true},
       {"name": "Grok AI agent with multi-turn conversations", "done": true},
@@ -218,11 +239,13 @@ const PROJECTS = [
       {"name": "n8n workflow with setup guide", "done": true}
     ],
     "progress": 90,
-    "github_url": "https://github.com/elmerzc/Max"
+    "github_url": "https://github.com/elmerzc/Max",
+    "github_repo": "elmerzc/Max"
   },
   {
     "name": "n8n Projects",
     "description": "Collection of n8n workflow exports and documentation including the save email draft workflow that creates Outlook drafts via Microsoft Graph API.",
+    "category": "workflow",
     "features": [
       {"name": "Save email draft workflow (Graph API)", "done": true},
       {"name": "Address lookup workflow", "done": true},
@@ -234,11 +257,13 @@ const PROJECTS = [
       {"name": "Global error handler", "done": true}
     ],
     "progress": 100,
-    "github_url": "https://github.com/elmerzc/n8n-projects"
+    "github_url": "https://github.com/elmerzc/n8n-projects",
+    "github_repo": "elmerzc/n8n-projects"
   },
   {
     "name": "n8n Workflow Organization",
     "description": "Documentation and organization of all 20 n8n workflows across ARIA, Andi, Lucas, Max, Forms, and Utility folders with complete tool-to-workflow mapping.",
+    "category": "workflow",
     "features": [
       {"name": "Folder structure for all 20 workflows", "done": true},
       {"name": "Cross-assistant tool usage mapping", "done": true},
@@ -247,11 +272,13 @@ const PROJECTS = [
       {"name": "Orphaned/deleted tool identification", "done": true}
     ],
     "progress": 100,
-    "github_url": "https://github.com/elmerzc/n8n-workflows"
+    "github_url": "https://github.com/elmerzc/n8n-workflows",
+    "github_repo": "elmerzc/n8n-workflows"
   },
   {
     "name": "Pound Access Form",
     "description": "Digital pound access request form for Classic Towing customers to request access to impounded vehicles for personal items, insurance releases, or third-party pickups.",
+    "category": "form",
     "features": [
       {"name": "HTML form with personal, vehicle, ID photo, release type sections", "done": true},
       {"name": "n8n workflow JSON created", "done": true},
@@ -266,11 +293,13 @@ const PROJECTS = [
       {"name": "Test end-to-end with ID photo", "done": false}
     ],
     "progress": 50,
-    "github_url": "https://github.com/elmerzc/Pound-Access-Form"
+    "github_url": "https://github.com/elmerzc/Pound-Access-Form",
+    "github_repo": "elmerzc/Pound-Access-Form"
   },
   {
     "name": "Vehicle Release Form",
     "description": "Digital vehicle release authorization system for Classic Towing allowing owners to pre-authorize third-party pickups or insurance releases with ID photo upload and automated dispatch email.",
+    "category": "form",
     "features": [
       {"name": "HTML form with owner, vehicle, release type, ID photo", "done": true},
       {"name": "n8n workflow active (ID: qZXN75m6KZLs8EVE)", "done": true},
@@ -286,11 +315,13 @@ const PROJECTS = [
       {"name": "Integration with InTow Manager", "done": false}
     ],
     "progress": 70,
-    "github_url": "https://github.com/elmerzc/Release-form"
+    "github_url": "https://github.com/elmerzc/Release-form",
+    "github_repo": "elmerzc/Release-form"
   },
   {
     "name": "Ronni",
     "description": "Web-based automation tool that converts InTow Manager CSV exports to TTC (Toronto Transit Commission) non-revenue reporting format with drag-and-drop upload, editable tables, and text/PDF export.",
+    "category": "web-app",
     "features": [
       {"name": "Drag & drop CSV upload", "done": true},
       {"name": "Editable table with 26 columns", "done": true},
@@ -304,11 +335,13 @@ const PROJECTS = [
       {"name": "Python CLI backup script", "done": true}
     ],
     "progress": 100,
-    "github_url": "https://github.com/elmerzc/Ronni"
+    "github_url": "https://github.com/elmerzc/Ronni",
+    "github_repo": "elmerzc/Ronni"
   },
   {
     "name": "Task Tracker",
     "description": "Personal task tracking Excel spreadsheet with daily work logging, auto-populated by-day view with FILTER formulas, and to-do list for project tracking.",
+    "category": "docs",
     "features": [
       {"name": "Daily Log sheet (append-only work logging)", "done": true},
       {"name": "By Day sheet (vertical layout, auto-populated via FILTER)", "done": true},
@@ -317,11 +350,13 @@ const PROJECTS = [
       {"name": "Hour totals per day", "done": true}
     ],
     "progress": 100,
-    "github_url": "https://github.com/elmerzc/task-tracker"
+    "github_url": "https://github.com/elmerzc/task-tracker",
+    "github_repo": "elmerzc/task-tracker"
   },
   {
     "name": "TwinMind ASR",
     "description": "Reference documentation for TwinMind's file-based speech-to-text API (Ear-3 model) for potential post-call transcription, QA, and call logging at Classic Towing.",
+    "category": "docs",
     "features": [
       {"name": "API documentation (sync and async endpoints)", "done": true},
       {"name": "Python code examples", "done": true},
@@ -333,28 +368,41 @@ const PROJECTS = [
       {"name": "QA batch processing workflow", "done": false}
     ],
     "progress": 25,
-    "github_url": "https://github.com/elmerzc/twinmind-asr"
+    "github_url": "https://github.com/elmerzc/twinmind-asr",
+    "github_repo": "elmerzc/twinmind-asr"
   },
   {
     "name": "Vapi Tools",
     "description": "Collection of n8n workflow JSON exports for VAPI transfer destination and workflow updater tools used by the Classic Towing voice AI system.",
+    "category": "workflow",
     "features": [
       {"name": "VAPI transfer destination workflow v1", "done": true},
       {"name": "VAPI transfer destination workflow v2", "done": true},
       {"name": "VAPI workflow updater v3", "done": true}
     ],
     "progress": 100,
-    "github_url": "https://github.com/elmerzc/Vapi-Tools"
+    "github_url": "https://github.com/elmerzc/Vapi-Tools",
+    "github_repo": "elmerzc/Vapi-Tools"
   },
   {
     "name": "Warm Transfer Fallback",
     "description": "Firebase configuration for warm transfer fallback handling in the Classic Towing voice AI system with Firestore rules and indexes.",
+    "category": "workflow",
     "features": [
       {"name": "Firebase project configuration (.firebaserc)", "done": true},
       {"name": "Firestore security rules", "done": true},
       {"name": "Firestore indexes", "done": true}
     ],
     "progress": 100,
-    "github_url": "https://github.com/elmerzc/warm-transfer-fallback"
+    "github_url": "https://github.com/elmerzc/warm-transfer-fallback",
+    "github_repo": "elmerzc/warm-transfer-fallback"
   }
 ];
+
+const CATEGORIES = {
+  "voice-ai": { label: "Voice AI", color: "#a371f7" },
+  "web-app": { label: "Web App", color: "#58a6ff" },
+  "workflow": { label: "Workflow", color: "#3fb950" },
+  "form": { label: "Form", color: "#d29922" },
+  "docs": { label: "Docs", color: "#8b949e" }
+};
