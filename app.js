@@ -226,8 +226,28 @@ function openModal(project) {
     ? pending.map(f => `<li>${f.name}</li>`).join('')
     : '<li style="color: var(--text-muted); background: none;">No pending features</li>';
 
+  renderModalSuggestions(project.name);
+
   modalOverlay.classList.add('active');
   document.body.style.overflow = 'hidden';
+}
+
+// Suggestions in project modal
+function renderModalSuggestions(projectName) {
+  const suggestions = getSuggestions().filter(s => s.project === projectName);
+  const section = document.getElementById('modalSuggestionsSection');
+  const list = document.getElementById('modalSuggestions');
+
+  if (suggestions.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = '';
+  list.innerHTML = suggestions.map(s => {
+    const priorityLabel = s.priority !== 'low' ? ` <span class="suggestion-priority priority-tag-${s.priority}">${s.priority}</span>` : '';
+    return `<li>${s.text}${priorityLabel}</li>`;
+  }).join('');
 }
 
 // Close modal
@@ -290,11 +310,152 @@ sortSelect.addEventListener('change', (e) => {
   renderCards();
 });
 
+// === SUGGESTIONS SYSTEM ===
+const STORAGE_KEY = 'project-portal-suggestions';
+
+function getSuggestions() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  } catch { return []; }
+}
+
+function saveSuggestions(suggestions) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(suggestions));
+  updateSuggestionsBadge();
+}
+
+function updateSuggestionsBadge() {
+  const badge = document.getElementById('suggestionsBadge');
+  const count = getSuggestions().length;
+  badge.textContent = count > 0 ? count : '';
+}
+
+// New Idea modal
+const newIdeaBtn = document.getElementById('newIdeaBtn');
+const ideaOverlay = document.getElementById('ideaOverlay');
+const ideaClose = document.getElementById('ideaClose');
+const ideaForm = document.getElementById('ideaForm');
+const ideaProject = document.getElementById('ideaProject');
+const ideaText = document.getElementById('ideaText');
+
+function openIdeaModal(preselectedProject) {
+  // Populate project dropdown
+  ideaProject.innerHTML = PROJECTS
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map(p => `<option value="${p.name}" ${p.name === preselectedProject ? 'selected' : ''}>${p.name}</option>`)
+    .join('');
+
+  ideaText.value = '';
+  ideaForm.querySelector('input[value="low"]').checked = true;
+  ideaOverlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => ideaText.focus(), 100);
+}
+
+function closeIdeaModal() {
+  ideaOverlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+newIdeaBtn.addEventListener('click', () => openIdeaModal());
+ideaClose.addEventListener('click', closeIdeaModal);
+ideaOverlay.addEventListener('click', (e) => {
+  if (e.target === ideaOverlay) closeIdeaModal();
+});
+
+ideaForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const suggestion = {
+    id: Date.now().toString(),
+    project: ideaProject.value,
+    text: ideaText.value.trim(),
+    priority: ideaForm.querySelector('input[name="priority"]:checked').value,
+    createdAt: new Date().toISOString()
+  };
+
+  if (!suggestion.text) return;
+
+  const suggestions = getSuggestions();
+  suggestions.push(suggestion);
+  saveSuggestions(suggestions);
+  closeIdeaModal();
+});
+
+// Suggestions panel
+const suggestionsBtn = document.getElementById('suggestionsBtn');
+const suggestionsOverlay = document.getElementById('suggestionsOverlay');
+const suggestionsClose = document.getElementById('suggestionsClose');
+const suggestionsList = document.getElementById('suggestionsList');
+const suggestionsEmpty = document.getElementById('suggestionsEmpty');
+
+function openSuggestions() {
+  const suggestions = getSuggestions();
+
+  if (suggestions.length === 0) {
+    suggestionsList.innerHTML = '';
+    suggestionsEmpty.style.display = 'block';
+  } else {
+    suggestionsEmpty.style.display = 'none';
+
+    // Group by project
+    const grouped = {};
+    suggestions.forEach(s => {
+      if (!grouped[s.project]) grouped[s.project] = [];
+      grouped[s.project].push(s);
+    });
+
+    // Sort groups: high priority items first
+    const priorityOrder = { high: 0, medium: 1, low: 2 };
+
+    suggestionsList.innerHTML = Object.entries(grouped).map(([project, items]) => {
+      items.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+      return `
+        <div class="suggestion-group">
+          <div class="suggestion-group-name">${project} (${items.length})</div>
+          ${items.map(s => `
+            <div class="suggestion-item">
+              <span class="suggestion-text">${s.text}</span>
+              <span class="suggestion-priority priority-tag-${s.priority}">${s.priority}</span>
+              <button class="suggestion-delete" data-id="${s.id}" title="Remove">&times;</button>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }).join('');
+
+    // Delete handlers
+    suggestionsList.querySelectorAll('.suggestion-delete').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.id;
+        const updated = getSuggestions().filter(s => s.id !== id);
+        saveSuggestions(updated);
+        openSuggestions(); // re-render
+      });
+    });
+  }
+
+  suggestionsOverlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSuggestions() {
+  suggestionsOverlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+suggestionsBtn.addEventListener('click', openSuggestions);
+suggestionsClose.addEventListener('click', closeSuggestions);
+suggestionsOverlay.addEventListener('click', (e) => {
+  if (e.target === suggestionsOverlay) closeSuggestions();
+});
+
 // Escape key closes modals
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     closeModal();
     closePending();
+    closeIdeaModal();
+    closeSuggestions();
   }
 });
 
@@ -328,4 +489,5 @@ async function fetchGithubDates() {
 renderStats();
 renderCategoryFilters();
 renderCards();
+updateSuggestionsBadge();
 fetchGithubDates();

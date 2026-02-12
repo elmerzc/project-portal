@@ -14,6 +14,8 @@
         <span class="project-count" id="projectCount"></span>
       </div>
       <div class="header-right">
+        <button class="btn btn-accent" id="newIdeaBtn">+ New Idea</button>
+        <button class="btn btn-outline" id="suggestionsBtn">Suggestions <span class="badge" id="suggestionsBadge"></span></button>
         <button class="btn btn-outline" id="pendingBtn">Pending Features</button>
       </div>
     </header>
@@ -95,6 +97,10 @@
             <h3>Pending</h3>
             <ul class="feature-list pending-list" id="modalPending"></ul>
           </div>
+          <div class="modal-section" id="modalSuggestionsSection" style="display:none;">
+            <h3>Suggestions</h3>
+            <ul class="feature-list suggestions-list" id="modalSuggestions"></ul>
+          </div>
         </div>
       </div>
     </div>
@@ -109,6 +115,45 @@
       </div>
     </div>
   </div>
+
+    <!-- New Idea Modal -->
+    <div class="modal-overlay" id="ideaOverlay">
+      <div class="modal idea-modal">
+        <button class="modal-close" id="ideaClose">&times;</button>
+        <h2 class="modal-title">New Idea</h2>
+        <p class="modal-desc">Add a feature suggestion to any project.</p>
+        <form id="ideaForm" class="idea-form">
+          <div class="form-group">
+            <label class="form-label">Project</label>
+            <select class="form-select" id="ideaProject" required></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Feature / Idea</label>
+            <input type="text" class="form-input" id="ideaText" placeholder="Describe the feature..." required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Priority</label>
+            <div class="priority-pills">
+              <label class="priority-pill"><input type="radio" name="priority" value="low" checked><span class="pill pill-low">Low</span></label>
+              <label class="priority-pill"><input type="radio" name="priority" value="medium"><span class="pill pill-med">Medium</span></label>
+              <label class="priority-pill"><input type="radio" name="priority" value="high"><span class="pill pill-high">High</span></label>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-accent btn-submit">Add Suggestion</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Suggestions Panel -->
+    <div class="modal-overlay" id="suggestionsOverlay">
+      <div class="modal suggestions-modal">
+        <button class="modal-close" id="suggestionsClose">&times;</button>
+        <h2 class="modal-title">Suggestions</h2>
+        <p class="modal-desc">Feature ideas you've added. These will be picked up in the next dev session.</p>
+        <div id="suggestionsList"></div>
+        <div class="suggestions-empty" id="suggestionsEmpty" style="display:none;">No suggestions yet. Click "+ New Idea" to add one.</div>
+      </div>
+    </div>
 
   <script src="projects.js"></script>
   <script src="app.js"></script>
