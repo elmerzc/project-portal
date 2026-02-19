@@ -2,52 +2,38 @@
 // Receives suggestions from the frontend, merges them into projects.js,
 // and commits the update to GitHub via the Contents API.
 
-const https = require('https');
-
 const GITHUB_OWNER = 'elmerzc';
 const GITHUB_REPO = 'project-portal';
 const FILE_PATH = 'projects.js';
 const BRANCH = 'main';
 
-function githubRequest(method, path, body) {
+async function githubRequest(method, path, body) {
   const PAT = process.env.GITHUB_PAT;
   if (!PAT) throw new Error('GITHUB_PAT not configured');
 
-  return new Promise((resolve, reject) => {
-    const bodyStr = body ? JSON.stringify(body) : null;
-    const options = {
-      hostname: 'api.github.com',
-      path,
-      method,
-      headers: {
-        'User-Agent': 'project-portal-export',
-        'Accept': 'application/vnd.github.v3+json',
-        'Authorization': `token ${PAT}`,
-        ...(bodyStr ? { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(bodyStr) } : {}),
-      },
-    };
+  const url = `https://api.github.com${path}`;
+  const options = {
+    method,
+    headers: {
+      'User-Agent': 'project-portal-export',
+      'Accept': 'application/vnd.github.v3+json',
+      'Authorization': `token ${PAT}`,
+    },
+  };
 
-    const req = https.request(options, (res) => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        try {
-          const json = JSON.parse(data);
-          if (res.statusCode >= 400) {
-            reject(new Error(`GitHub API ${res.statusCode}: ${json.message || data}`));
-          } else {
-            resolve(json);
-          }
-        } catch (e) {
-          reject(new Error(`Parse error: ${data.substring(0, 200)}`));
-        }
-      });
-    });
+  if (body) {
+    options.headers['Content-Type'] = 'application/json';
+    options.body = JSON.stringify(body);
+  }
 
-    req.on('error', reject);
-    if (bodyStr) req.write(bodyStr);
-    req.end();
-  });
+  const res = await fetch(url, options);
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(`GitHub API ${res.status}: ${data.message || JSON.stringify(data)}`);
+  }
+
+  return data;
 }
 
 async function getFileFromGitHub() {
@@ -55,14 +41,13 @@ async function getFileFromGitHub() {
     'GET',
     `/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${FILE_PATH}?ref=${BRANCH}`
   );
-  const content = Buffer.from(data.content, 'base64').toString('utf-8');
+  const content = atob(data.content.replace(/\n/g, ''));
   return { content, sha: data.sha };
 }
 
 function parseProjectsJs(raw) {
   const match = raw.match(/const PROJECTS = (\[[\s\S]*?\n\]);/);
   if (!match) throw new Error('Could not parse PROJECTS array');
-  // The array is valid JSON (double-quoted keys/values), just strip trailing semicolon
   const jsonStr = match[1].replace(/;$/, '');
   return JSON.parse(jsonStr);
 }
@@ -74,8 +59,7 @@ function rebuildProjectsJs(raw, projects) {
   return `const PROJECTS = ${projectsJson};\n\n${categoriesBlock}`;
 }
 
-exports.handler = async (event) => {
-  // CORS headers
+export const handler = async (event) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -131,7 +115,7 @@ exports.handler = async (event) => {
 
     // Rebuild file content
     const newContent = rebuildProjectsJs(raw, projects);
-    const encoded = Buffer.from(newContent).toString('base64');
+    const encoded = btoa(newContent);
 
     // Commit to GitHub
     await githubRequest('PUT', `/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${FILE_PATH}`, {
