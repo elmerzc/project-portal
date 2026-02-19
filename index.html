@@ -11,12 +11,16 @@
     <header class="header">
       <div class="header-left">
         <h1 class="logo">Project Portal</h1>
+        <a class="deploy-badge" href="https://app.netlify.com/sites/ct-project-portal/deploys" target="_blank" rel="noopener">
+          <img src="https://api.netlify.com/api/v1/badges/ct-project-portal/deploy-status" alt="Netlify Status">
+        </a>
         <span class="project-count" id="projectCount"></span>
       </div>
       <div class="header-right">
         <button class="btn btn-accent" id="newIdeaBtn">+ New Idea</button>
         <button class="btn btn-outline" id="suggestionsBtn">Suggestions <span class="badge" id="suggestionsBadge"></span></button>
         <button class="btn btn-outline" id="pendingBtn">Pending Features</button>
+        <button class="btn btn-outline" id="timelineBtn">Timeline</button>
       </div>
     </header>
 
@@ -144,12 +148,29 @@
       </div>
     </div>
 
+    <!-- Timeline Modal -->
+    <div class="modal-overlay" id="timelineOverlay">
+      <div class="modal timeline-modal">
+        <button class="modal-close" id="timelineClose">&times;</button>
+        <h2 class="modal-title">Project Timeline</h2>
+        <p class="modal-desc">Recent activity across all projects, sorted by last update.</p>
+        <div class="timeline" id="timelineList"></div>
+        <div class="timeline-empty" id="timelineEmpty" style="display:none;">No activity data available. GitHub dates are still loading.</div>
+      </div>
+    </div>
+
     <!-- Suggestions Panel -->
     <div class="modal-overlay" id="suggestionsOverlay">
       <div class="modal suggestions-modal">
         <button class="modal-close" id="suggestionsClose">&times;</button>
-        <h2 class="modal-title">Suggestions</h2>
-        <p class="modal-desc">Feature ideas you've added. These will be picked up in the next dev session.</p>
+        <div class="suggestions-header">
+          <div>
+            <h2 class="modal-title">Suggestions</h2>
+            <p class="modal-desc">Feature ideas you've added. These will be picked up in the next dev session.</p>
+          </div>
+          <button class="btn btn-accent" id="exportSuggestionsBtn" style="display:none;">Export to Repo</button>
+        </div>
+        <div id="exportStatus" class="export-status" style="display:none;"></div>
         <div id="suggestionsList"></div>
         <div class="suggestions-empty" id="suggestionsEmpty" style="display:none;">No suggestions yet. Click "+ New Idea" to add one.</div>
       </div>

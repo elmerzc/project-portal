@@ -50,6 +50,16 @@ body {
   color: var(--text);
 }
 
+.deploy-badge {
+  display: flex;
+  align-items: center;
+}
+
+.deploy-badge img {
+  height: 20px;
+  border-radius: 4px;
+}
+
 .project-count {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -771,6 +781,41 @@ body {
   background: rgba(248, 81, 73, 0.1);
 }
 
+.suggestions-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.suggestions-header .modal-title {
+  margin-bottom: 4px;
+}
+
+.suggestions-header .modal-desc {
+  margin-bottom: 0;
+}
+
+.export-status {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
+
+.export-status.success {
+  background: rgba(63, 185, 80, 0.12);
+  color: var(--green);
+  border: 1px solid rgba(63, 185, 80, 0.3);
+}
+
+.export-status.error {
+  background: rgba(248, 81, 73, 0.12);
+  color: var(--red);
+  border: 1px solid rgba(248, 81, 73, 0.3);
+}
+
 .suggestions-empty {
   text-align: center;
   color: var(--text-muted);
@@ -785,6 +830,94 @@ body {
 
 .suggestions-list li::before {
   background: var(--accent);
+}
+
+/* Timeline */
+.timeline-modal {
+  max-width: 680px;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 28px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+}
+
+.timeline-item {
+  position: relative;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.timeline-item:last-child {
+  border-bottom: none;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: -24px;
+  top: 22px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 2px var(--border);
+}
+
+.timeline-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.timeline-project-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.timeline-date {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.timeline-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8rem;
+}
+
+.timeline-progress {
+  color: var(--text-muted);
+}
+
+.timeline-commits-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.8rem;
+}
+
+.timeline-commits-link:hover {
+  text-decoration: underline;
+}
+
+.timeline-empty {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 40px 20px;
 }
 
 /* Loading animation */

@@ -390,11 +390,14 @@ const suggestionsEmpty = document.getElementById('suggestionsEmpty');
 
 function openSuggestions() {
   const suggestions = getSuggestions();
+  exportStatus.style.display = 'none';
 
   if (suggestions.length === 0) {
     suggestionsList.innerHTML = '';
     suggestionsEmpty.style.display = 'block';
+    exportSuggestionsBtn.style.display = 'none';
   } else {
+    exportSuggestionsBtn.style.display = '';
     suggestionsEmpty.style.display = 'none';
 
     // Group by project
@@ -443,10 +446,113 @@ function closeSuggestions() {
   document.body.style.overflow = '';
 }
 
+// Export suggestions to repo
+const exportSuggestionsBtn = document.getElementById('exportSuggestionsBtn');
+const exportStatus = document.getElementById('exportStatus');
+
+exportSuggestionsBtn.addEventListener('click', async () => {
+  const suggestions = getSuggestions();
+  if (suggestions.length === 0) return;
+
+  exportSuggestionsBtn.disabled = true;
+  exportSuggestionsBtn.textContent = 'Exporting...';
+  exportStatus.style.display = 'none';
+
+  try {
+    const res = await fetch('/.netlify/functions/export-suggestions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ suggestions }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || 'Export failed');
+    }
+
+    // Clear exported suggestions
+    saveSuggestions([]);
+    exportStatus.className = 'export-status success';
+    exportStatus.textContent = data.message;
+    exportStatus.style.display = 'block';
+    exportSuggestionsBtn.style.display = 'none';
+
+    // Re-render the suggestions list
+    openSuggestions();
+  } catch (e) {
+    exportStatus.className = 'export-status error';
+    exportStatus.textContent = `Export failed: ${e.message}`;
+    exportStatus.style.display = 'block';
+  } finally {
+    exportSuggestionsBtn.disabled = false;
+    exportSuggestionsBtn.textContent = 'Export to Repo';
+  }
+});
+
 suggestionsBtn.addEventListener('click', openSuggestions);
 suggestionsClose.addEventListener('click', closeSuggestions);
 suggestionsOverlay.addEventListener('click', (e) => {
   if (e.target === suggestionsOverlay) closeSuggestions();
+});
+
+// === TIMELINE ===
+const timelineBtn = document.getElementById('timelineBtn');
+const timelineOverlay = document.getElementById('timelineOverlay');
+const timelineClose = document.getElementById('timelineClose');
+const timelineList = document.getElementById('timelineList');
+const timelineEmpty = document.getElementById('timelineEmpty');
+
+function openTimeline() {
+  // Sort projects by last pushed date (most recent first)
+  const projectsWithDates = PROJECTS
+    .map(p => ({ ...p, pushed_at: githubDates[p.github_repo] || null }))
+    .filter(p => p.pushed_at)
+    .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at));
+
+  if (projectsWithDates.length === 0) {
+    timelineList.innerHTML = '';
+    timelineEmpty.style.display = 'block';
+  } else {
+    timelineEmpty.style.display = 'none';
+    timelineList.innerHTML = projectsWithDates.map(p => {
+      const cat = CATEGORIES[p.category];
+      const dotColor = cat ? cat.color : 'var(--text-muted)';
+      const dateStr = new Date(p.pushed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const ago = timeAgo(p.pushed_at);
+      const done = p.features.filter(f => f.done).length;
+      const total = p.features.length;
+
+      return `
+        <div class="timeline-item">
+          <div class="timeline-dot" style="background: ${dotColor}; box-shadow: 0 0 0 2px ${dotColor}44"></div>
+          <div class="timeline-item-header">
+            <span class="timeline-project-name">${p.name}</span>
+            <span class="timeline-date">${ago} &middot; ${dateStr}</span>
+          </div>
+          <div class="timeline-meta">
+            ${categoryTag(p.category)}
+            <span class="timeline-progress">${done}/${total} features &middot; ${p.progress}%</span>
+            <a class="timeline-commits-link" href="${p.github_url}/commits/main" target="_blank" rel="noopener">View commits &rarr;</a>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  timelineOverlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeTimeline() {
+  timelineOverlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+timelineBtn.addEventListener('click', openTimeline);
+timelineClose.addEventListener('click', closeTimeline);
+timelineOverlay.addEventListener('click', (e) => {
+  if (e.target === timelineOverlay) closeTimeline();
 });
 
 // Escape key closes modals
@@ -456,6 +562,7 @@ document.addEventListener('keydown', (e) => {
     closePending();
     closeIdeaModal();
     closeSuggestions();
+    closeTimeline();
   }
 });
 

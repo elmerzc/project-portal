@@ -27,7 +27,8 @@ const PROJECTS = [
     ],
     "progress": 80,
     "github_url": "https://github.com/elmerzc/Ai",
-    "github_repo": "elmerzc/Ai"
+    "github_repo": "elmerzc/Ai",
+    "spec_file": ""
   },
   {
     "name": "Andi",
@@ -45,7 +46,8 @@ const PROJECTS = [
     ],
     "progress": 95,
     "github_url": "https://github.com/elmerzc/Andi",
-    "github_repo": "elmerzc/Andi"
+    "github_repo": "elmerzc/Andi",
+    "spec_file": ""
   },
   {
     "name": "ARIA",
@@ -65,7 +67,8 @@ const PROJECTS = [
     ],
     "progress": 95,
     "github_url": "https://github.com/elmerzc/Aria",
-    "github_repo": "elmerzc/Aria"
+    "github_repo": "elmerzc/Aria",
+    "spec_file": ""
   },
   {
     "name": "Aventureros",
@@ -90,7 +93,8 @@ const PROJECTS = [
     ],
     "progress": 85,
     "github_url": "https://github.com/elmerzc/Aventureros",
-    "github_repo": "elmerzc/Aventureros"
+    "github_repo": "elmerzc/Aventureros",
+    "spec_file": "aventureros-v1.4.md"
   },
   {
     "name": "Claude Skills",
@@ -108,7 +112,8 @@ const PROJECTS = [
     ],
     "progress": 100,
     "github_url": "https://github.com/elmerzc/Claude-Skills",
-    "github_repo": "elmerzc/Claude-Skills"
+    "github_repo": "elmerzc/Claude-Skills",
+    "spec_file": ""
   },
   {
     "name": "Dispatch Portal",
@@ -132,7 +137,8 @@ const PROJECTS = [
     ],
     "progress": 85,
     "github_url": "https://github.com/elmerzc/dispatch-portal",
-    "github_repo": "elmerzc/dispatch-portal"
+    "github_repo": "elmerzc/dispatch-portal",
+    "spec_file": ""
   },
   {
     "name": "Driver Onboarding Portal",
@@ -156,7 +162,8 @@ const PROJECTS = [
     ],
     "progress": 75,
     "github_url": "https://github.com/elmerzc/driver-onboarding-portal",
-    "github_repo": "elmerzc/driver-onboarding-portal"
+    "github_repo": "elmerzc/driver-onboarding-portal",
+    "spec_file": "driver-onboarding-portal-v1.4.md"
   },
   {
     "name": "Grok Voice Agent",
@@ -178,7 +185,8 @@ const PROJECTS = [
     ],
     "progress": 85,
     "github_url": "https://github.com/elmerzc/grok-voice-agent",
-    "github_repo": "elmerzc/grok-voice-agent"
+    "github_repo": "elmerzc/grok-voice-agent",
+    "spec_file": ""
   },
   {
     "name": "La Estrella",
@@ -203,7 +211,8 @@ const PROJECTS = [
     ],
     "progress": 75,
     "github_url": "https://github.com/elmerzc/la-estrella",
-    "github_repo": "elmerzc/la-estrella"
+    "github_repo": "elmerzc/la-estrella",
+    "spec_file": ""
   },
   {
     "name": "Lucas",
@@ -225,7 +234,8 @@ const PROJECTS = [
     ],
     "progress": 95,
     "github_url": "https://github.com/elmerzc/Lucas",
-    "github_repo": "elmerzc/Lucas"
+    "github_repo": "elmerzc/Lucas",
+    "spec_file": ""
   },
   {
     "name": "Max",
@@ -240,7 +250,8 @@ const PROJECTS = [
     ],
     "progress": 90,
     "github_url": "https://github.com/elmerzc/Max",
-    "github_repo": "elmerzc/Max"
+    "github_repo": "elmerzc/Max",
+    "spec_file": ""
   },
   {
     "name": "n8n Projects",
@@ -258,7 +269,8 @@ const PROJECTS = [
     ],
     "progress": 100,
     "github_url": "https://github.com/elmerzc/n8n-projects",
-    "github_repo": "elmerzc/n8n-projects"
+    "github_repo": "elmerzc/n8n-projects",
+    "spec_file": ""
   },
   {
     "name": "n8n Workflow Organization",
@@ -273,7 +285,8 @@ const PROJECTS = [
     ],
     "progress": 100,
     "github_url": "https://github.com/elmerzc/n8n-workflows",
-    "github_repo": "elmerzc/n8n-workflows"
+    "github_repo": "elmerzc/n8n-workflows",
+    "spec_file": ""
   },
   {
     "name": "Pound Access Form",
@@ -294,7 +307,8 @@ const PROJECTS = [
     ],
     "progress": 50,
     "github_url": "https://github.com/elmerzc/Pound-Access-Form",
-    "github_repo": "elmerzc/Pound-Access-Form"
+    "github_repo": "elmerzc/Pound-Access-Form",
+    "spec_file": "Pound-Access-Form-v1.1.md"
   },
   {
     "name": "Vehicle Release Form",
@@ -316,7 +330,8 @@ const PROJECTS = [
     ],
     "progress": 70,
     "github_url": "https://github.com/elmerzc/Release-form",
-    "github_repo": "elmerzc/Release-form"
+    "github_repo": "elmerzc/Release-form",
+    "spec_file": "Vehicle-Release-System-v2.md"
   },
   {
     "name": "Ronni",
@@ -336,7 +351,8 @@ const PROJECTS = [
     ],
     "progress": 100,
     "github_url": "https://github.com/elmerzc/Ronni",
-    "github_repo": "elmerzc/Ronni"
+    "github_repo": "elmerzc/Ronni",
+    "spec_file": ""
   },
   {
     "name": "Task Tracker",
@@ -351,7 +367,8 @@ const PROJECTS = [
     ],
     "progress": 100,
     "github_url": "https://github.com/elmerzc/task-tracker",
-    "github_repo": "elmerzc/task-tracker"
+    "github_repo": "elmerzc/task-tracker",
+    "spec_file": ""
   },
   {
     "name": "TwinMind ASR",
@@ -369,7 +386,8 @@ const PROJECTS = [
     ],
     "progress": 25,
     "github_url": "https://github.com/elmerzc/twinmind-asr",
-    "github_repo": "elmerzc/twinmind-asr"
+    "github_repo": "elmerzc/twinmind-asr",
+    "spec_file": ""
   },
   {
     "name": "Vapi Tools",
@@ -382,7 +400,8 @@ const PROJECTS = [
     ],
     "progress": 100,
     "github_url": "https://github.com/elmerzc/Vapi-Tools",
-    "github_repo": "elmerzc/Vapi-Tools"
+    "github_repo": "elmerzc/Vapi-Tools",
+    "spec_file": ""
   },
   {
     "name": "Warm Transfer Fallback",
@@ -395,7 +414,8 @@ const PROJECTS = [
     ],
     "progress": 100,
     "github_url": "https://github.com/elmerzc/warm-transfer-fallback",
-    "github_repo": "elmerzc/warm-transfer-fallback"
+    "github_repo": "elmerzc/warm-transfer-fallback",
+    "spec_file": ""
   }
 ];
 
