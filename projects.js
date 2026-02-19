@@ -252,9 +252,13 @@ const PROJECTS = [
       {
         "name": "test suggestion from curl",
         "done": false
+      },
+      {
+        "name": "add on option to change prices and add new products",
+        "done": false
       }
     ],
-    "progress": 63,
+    "progress": 59,
     "github_url": "https://github.com/elmerzc/Aventureros",
     "github_repo": "elmerzc/Aventureros",
     "spec_file": "aventureros-v1.4.md"
