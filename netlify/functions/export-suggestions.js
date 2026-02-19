@@ -62,7 +62,9 @@ async function getFileFromGitHub() {
 function parseProjectsJs(raw) {
   const match = raw.match(/const PROJECTS = (\[[\s\S]*?\n\]);/);
   if (!match) throw new Error('Could not parse PROJECTS array');
-  return eval(match[1]);
+  // The array is valid JSON (double-quoted keys/values), just strip trailing semicolon
+  const jsonStr = match[1].replace(/;$/, '');
+  return JSON.parse(jsonStr);
 }
 
 function rebuildProjectsJs(raw, projects) {
@@ -145,7 +147,7 @@ exports.handler = async (event) => {
       body: JSON.stringify({ message: `Successfully exported ${addedCount} suggestion(s)`, added: addedCount }),
     };
   } catch (e) {
-    console.error('export-suggestions error:', e);
+    console.error('export-suggestions error:', e.message, e.stack);
     return {
       statusCode: 500,
       headers,
