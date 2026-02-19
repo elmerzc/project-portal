@@ -41,7 +41,7 @@ async function getFileFromGitHub() {
     'GET',
     `/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${FILE_PATH}?ref=${BRANCH}`
   );
-  const content = atob(data.content.replace(/\n/g, ''));
+  const content = Buffer.from(data.content, 'base64').toString('utf-8');
   return { content, sha: data.sha };
 }
 
@@ -59,7 +59,7 @@ function rebuildProjectsJs(raw, projects) {
   return `const PROJECTS = ${projectsJson};\n\n${categoriesBlock}`;
 }
 
-export const handler = async (event) => {
+exports.handler = async (event) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -115,7 +115,7 @@ export const handler = async (event) => {
 
     // Rebuild file content
     const newContent = rebuildProjectsJs(raw, projects);
-    const encoded = btoa(newContent);
+    const encoded = Buffer.from(newContent).toString('base64');
 
     // Commit to GitHub
     await githubRequest('PUT', `/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${FILE_PATH}`, {
