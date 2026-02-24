@@ -69,12 +69,37 @@ class SessionMonitor {
   }
 
   /**
+   * Auto-accept the bypass permissions prompt for YOLO sessions.
+   * This is a fallback in case the initial auto-accept in tmux-manager
+   * fires too early (before the prompt renders).
+   */
+  _autoAcceptBypass(session) {
+    if (!session.yoloMode || session.bypassAccepted) return;
+
+    const output = session.lastOutput || '';
+    if (output.includes('Bypass Permissions') || output.includes('Yes, I accept')) {
+      try {
+        this.tmuxManager.sendKeys(session.id, 'Down', 'Enter');
+        session.bypassAccepted = true;
+      } catch { /* session may be gone */ }
+    }
+  }
+
+  /**
    * Handle status change
    */
   _onStatusChange(session, prevStatus) {
     const { status, projectName, id } = session;
 
+    // Auto-accept bypass prompt for YOLO sessions
+    if (status === 'waiting_for_input' && session.yoloMode) {
+      this._autoAcceptBypass(session);
+    }
+
     if (status === 'waiting_for_input' && settings.notifications.waitingForInput) {
+      // Don't notify for YOLO sessions that just need the bypass prompt accepted
+      if (session.yoloMode && !session.bypassAccepted) return;
+
       this.notifications.send({
         type: 'attention',
         sessionId: id,
@@ -115,6 +140,9 @@ class SessionMonitor {
    * Handle new output
    */
   _onNewOutput(session, prevOutput) {
+    // Auto-accept bypass prompt as soon as it appears in output
+    this._autoAcceptBypass(session);
+
     // Emit output update via socket.io
     this.notifications.emitOutputUpdate(session);
   }

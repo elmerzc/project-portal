@@ -100,9 +100,31 @@ class TmuxManager {
       startedAt: new Date().toISOString(),
       lastOutput: '',
       lastActivity: Date.now(),
+      bypassAccepted: false,
     };
 
     this.sessions.set(id, session);
+
+    // Auto-accept the "Bypass Permissions" prompt for YOLO mode sessions.
+    // Claude Code shows an interactive TUI selection:
+    //   ❯ 1. No, exit
+    //     2. Yes, I accept
+    // We send Down (to select option 2) then Enter (to confirm) after a delay
+    // to allow the prompt to render.
+    if (yoloMode) {
+      setTimeout(() => {
+        try {
+          const output = this.captureOutput(windowName, 50);
+          if (output.includes('Bypass Permissions') || output.includes('Yes, I accept')) {
+            execSync(
+              `tmux send-keys -t ${TMUX_SESSION}:${windowName} Down Enter`
+            );
+            session.bypassAccepted = true;
+          }
+        } catch { /* window may be gone */ }
+      }, 2500);
+    }
+
     return session;
   }
 
@@ -203,6 +225,26 @@ class TmuxManager {
       return { success: true };
     } catch (e) {
       throw new Error(`Failed to send input: ${e.message}`);
+    }
+  }
+
+  /**
+   * Send raw tmux keys to a session (for arrow keys, Enter, etc.)
+   */
+  sendKeys(id, ...keys) {
+    const session = this.sessions.get(id);
+    if (!session) {
+      throw new Error(`Session ${id} not found`);
+    }
+
+    try {
+      execSync(
+        `tmux send-keys -t ${TMUX_SESSION}:${session.windowName} ${keys.join(' ')}`
+      );
+      session.lastActivity = Date.now();
+      return { success: true };
+    } catch (e) {
+      throw new Error(`Failed to send keys: ${e.message}`);
     }
   }
 
