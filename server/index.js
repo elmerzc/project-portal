@@ -237,13 +237,12 @@ io.on('connection', (socket) => {
   });
 });
 
-// --- Redirect /dashboard to /dashboard/ ---
-app.get('/dashboard', (req, res) => {
-  res.redirect('/dashboard/');
-});
-
-// Default dashboard page
-app.get('/dashboard/', (req, res) => {
+// Dashboard route - serve command center HTML
+app.get('/dashboard', (req, res, next) => {
+  // Redirect /dashboard to /dashboard/ (only if no trailing slash)
+  if (!req.originalUrl.endsWith('/')) {
+    return res.redirect('/dashboard/');
+  }
   res.sendFile(path.join(__dirname, '../client/command-center.html'));
 });
 
