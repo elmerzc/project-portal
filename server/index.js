@@ -33,8 +33,16 @@ const sessionMonitor = new SessionMonitor(tmuxManager, notificationService);
 // Middleware
 app.use(express.json());
 
-// Serve static client files
-app.use('/dashboard', express.static(path.join(__dirname, '../client'), { index: 'command-center.html' }));
+// Dashboard route - serve command center HTML (must be before static middleware)
+app.get('/dashboard', (req, res) => {
+  if (req.originalUrl === '/dashboard') {
+    return res.redirect('/dashboard/');
+  }
+  res.sendFile(path.join(__dirname, '../client/command-center.html'));
+});
+
+// Serve static client files (CSS, JS, assets)
+app.use('/dashboard', express.static(path.join(__dirname, '../client'), { redirect: false }));
 
 // Serve the existing portal at root
 app.use(express.static(path.join(__dirname, '..')));
@@ -235,13 +243,6 @@ io.on('connection', (socket) => {
       tmuxManager.sendInput(sessionId, text);
     } catch { /* ignore */ }
   });
-});
-
-// Redirect /dashboard to /dashboard/ for trailing slash
-app.get('/dashboard', (req, res) => {
-  if (!req.originalUrl.endsWith('/')) {
-    return res.redirect('/dashboard/');
-  }
 });
 
 // --- Start server ---
