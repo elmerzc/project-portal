@@ -1,0 +1,47 @@
+[
+  {
+    "name": "Classic Towing Voice AI",
+    "slug": "classic-towing-voice-ai",
+    "repo": "elmerzc/classic-towing-voice-ai",
+    "directory": "/home/user/projects/classic-towing-voice-ai",
+    "defaultMode": "normal",
+    "color": "#a371f7",
+    "description": "Three-assistant VAPI voice AI system (ARIA, Andi, Lucas)"
+  },
+  {
+    "name": "ARIA Voice AI",
+    "slug": "aria-voice-ai",
+    "repo": "elmerzc/aria-voice-ai",
+    "directory": "/home/user/projects/aria-voice-ai",
+    "defaultMode": "normal",
+    "color": "#a371f7",
+    "description": "Virtual receptionist voice AI system"
+  },
+  {
+    "name": "Dispatch Portal",
+    "slug": "dispatch-portal",
+    "repo": "elmerzc/dispatch-portal",
+    "directory": "/home/user/projects/dispatch-portal",
+    "defaultMode": "normal",
+    "color": "#58a6ff",
+    "description": "Driver dispatch and check-in portal"
+  },
+  {
+    "name": "Project Portal",
+    "slug": "project-portal",
+    "repo": "elmerzc/project-portal",
+    "directory": "/home/user/projects/project-portal",
+    "defaultMode": "normal",
+    "color": "#58a6ff",
+    "description": "Project tracking and management dashboard"
+  },
+  {
+    "name": "Driver Onboarding Portal",
+    "slug": "driver-onboarding-portal",
+    "repo": "elmerzc/driver-onboarding-portal",
+    "directory": "/home/user/projects/driver-onboarding-portal",
+    "defaultMode": "normal",
+    "color": "#58a6ff",
+    "description": "Driver onboarding and document management portal"
+  }
+]
