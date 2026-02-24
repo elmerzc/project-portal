@@ -3,6 +3,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
 const fs = require('fs');
+const { exec } = require('child_process');
 
 const TmuxManager = require('./tmux-manager');
 const SessionMonitor = require('./session-monitor');
@@ -60,6 +61,111 @@ app.get('/api/projects', (req, res) => {
   } catch { /* use cached */ }
 
   res.json(projects);
+});
+
+/**
+ * POST /api/projects - Create a new project (and optionally clone its repo)
+ */
+app.post('/api/projects', async (req, res) => {
+  try {
+    const { name, slug, repo, directory, defaultMode, color, description, cloneRepo } = req.body;
+
+    if (!name || !slug) {
+      return res.status(400).json({ error: 'name and slug are required' });
+    }
+
+    // Reload current projects from disk
+    let currentProjects = [];
+    try {
+      delete require.cache[require.resolve('../config/projects.json')];
+      currentProjects = require('../config/projects.json');
+    } catch { currentProjects = []; }
+
+    if (currentProjects.some(p => p.slug === slug)) {
+      return res.status(409).json({ error: `Project with slug "${slug}" already exists` });
+    }
+
+    const projectDir = directory || `/home/user/projects/${slug}`;
+
+    // Clone the repo if requested
+    if (cloneRepo && repo) {
+      const repoUrl = repo.includes('github.com')
+        ? repo
+        : `https://github.com/${repo}.git`;
+
+      const parentDir = path.dirname(projectDir);
+      fs.mkdirSync(parentDir, { recursive: true });
+
+      if (fs.existsSync(projectDir)) {
+        return res.status(409).json({ error: `Directory already exists: ${projectDir}` });
+      }
+
+      await new Promise((resolve, reject) => {
+        exec(`git clone ${repoUrl} "${projectDir}"`, { timeout: 120000 }, (error, stdout, stderr) => {
+          if (error) {
+            reject(new Error(`Clone failed: ${stderr || error.message}`));
+          } else {
+            resolve(stdout);
+          }
+        });
+      });
+    }
+
+    const newProject = {
+      name,
+      slug,
+      repo: repo || '',
+      directory: projectDir,
+      defaultMode: defaultMode || 'normal',
+      color: color || '#58a6ff',
+      description: description || '',
+    };
+
+    currentProjects.push(newProject);
+    const configPath = path.join(__dirname, '../config/projects.json');
+    fs.writeFileSync(configPath, JSON.stringify(currentProjects, null, 2) + '\n');
+
+    projects = currentProjects;
+
+    io.emit('project:created', newProject);
+
+    res.status(201).json(newProject);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+/**
+ * GET /api/github/repo/:owner/:repo - Fetch GitHub repo metadata
+ */
+app.get('/api/github/repo/:owner/:repo', async (req, res) => {
+  try {
+    const { owner, repo } = req.params;
+    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+      headers: { 'Accept': 'application/vnd.github.v3+json' },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return res.status(404).json({ error: 'Repository not found' });
+      }
+      return res.status(response.status).json({ error: 'GitHub API error' });
+    }
+
+    const data = await response.json();
+    res.json({
+      name: data.name,
+      fullName: data.full_name,
+      description: data.description || '',
+      cloneUrl: data.clone_url,
+      htmlUrl: data.html_url,
+      language: data.language,
+      defaultBranch: data.default_branch,
+      private: data.private,
+    });
+  } catch (e) {
+    res.status(500).json({ error: `Failed to fetch repo info: ${e.message}` });
+  }
 });
 
 /**

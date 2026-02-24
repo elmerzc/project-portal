@@ -49,6 +49,7 @@ class WSClient {
     this.socket.on('notification', (data) => this._emit('notification', data));
     this.socket.on('terminal:data', (data) => this._emit('terminal:data', data));
     this.socket.on('terminal:error', (data) => this._emit('terminal:error', data));
+    this.socket.on('project:created', (data) => this._emit('project:created', data));
   }
 
   /**

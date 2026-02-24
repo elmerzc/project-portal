@@ -28,10 +28,12 @@ document.addEventListener('DOMContentLoaded', () => {
   ws.on('session:output', onSessionOutputUpdate);
   ws.on('notification', onNotification);
   ws.on('terminal:data', onTerminalData);
+  ws.on('project:created', onProjectCreated);
 
   // Setup navigation
   setupNavigation();
   setupLaunchModal();
+  setupNewProjectModal();
   setupSearch();
   setupKeyboardShortcuts();
   setupNotificationControls();
@@ -159,6 +161,14 @@ function onTerminalData({ sessionId, data }) {
   if (termManager.currentSessionId === sessionId) {
     termManager.write(data);
   }
+}
+
+function onProjectCreated(project) {
+  if (!projects.some(p => p.slug === project.slug)) {
+    projects.push(project);
+    renderProjects();
+  }
+  notifManager.showToast('Project Added', `${project.name} has been added`, 'info');
 }
 
 // --- Data Fetching ---
@@ -558,6 +568,7 @@ function setupKeyboardShortcuts() {
     // Escape closes modals
     if (e.key === 'Escape') {
       closeLaunchModal();
+      document.getElementById('newProjectOverlay').classList.remove('active');
     }
 
     // Don't handle shortcuts when typing in inputs
@@ -576,4 +587,193 @@ function setupKeyboardShortcuts() {
       document.getElementById('projectSearch').focus();
     }
   });
+}
+
+// --- New Project Modal ---
+function setupNewProjectModal() {
+  const overlay = document.getElementById('newProjectOverlay');
+  const closeBtn = document.getElementById('newProjectClose');
+  const cancelBtn = document.getElementById('newProjectCancel');
+  const form = document.getElementById('newProjectForm');
+  const fetchBtn = document.getElementById('fetchGithubBtn');
+  const urlInput = document.getElementById('githubUrlInput');
+  const statusHint = document.getElementById('githubFetchStatus');
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const cloneGroup = document.getElementById('cloneCheckboxGroup');
+  let currentTab = 'github';
+
+  // Open modal
+  document.getElementById('newProjectBtn').addEventListener('click', () => {
+    resetNewProjectForm();
+    overlay.classList.add('active');
+    if (currentTab === 'github') {
+      urlInput.focus();
+    } else {
+      document.getElementById('npName').focus();
+    }
+  });
+
+  // Close modal
+  function closeModal() {
+    overlay.classList.remove('active');
+  }
+  closeBtn.addEventListener('click', closeModal);
+  cancelBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeModal();
+  });
+
+  // Tab switching
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentTab = btn.dataset.tab;
+      tabBtns.forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      if (currentTab === 'github') {
+        document.getElementById('githubTab').classList.add('active');
+        cloneGroup.style.display = '';
+      } else {
+        cloneGroup.style.display = 'none';
+      }
+    });
+  });
+
+  // Auto-generate slug from name
+  document.getElementById('npName').addEventListener('input', (e) => {
+    const slug = e.target.value
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+    document.getElementById('npSlug').value = slug;
+    document.getElementById('npDirectory').placeholder = `/home/user/projects/${slug || 'my-project'}`;
+  });
+
+  // Color preview
+  document.getElementById('npColor').addEventListener('input', (e) => {
+    document.getElementById('npColorPreview').style.background = e.target.value;
+  });
+
+  // Fetch GitHub repo metadata
+  fetchBtn.addEventListener('click', async () => {
+    const url = urlInput.value.trim();
+    if (!url) {
+      statusHint.textContent = 'Please enter a GitHub URL';
+      statusHint.className = 'form-hint error';
+      return;
+    }
+
+    const parsed = parseGitHubUrl(url);
+    if (!parsed) {
+      statusHint.textContent = 'Invalid GitHub URL. Use https://github.com/owner/repo or owner/repo';
+      statusHint.className = 'form-hint error';
+      return;
+    }
+
+    fetchBtn.disabled = true;
+    fetchBtn.textContent = 'Fetching...';
+    statusHint.textContent = '';
+
+    try {
+      const res = await fetch(`${API}/api/github/repo/${parsed.owner}/${parsed.repo}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to fetch');
+      }
+
+      document.getElementById('npName').value = formatRepoName(data.name);
+      document.getElementById('npSlug').value = data.name;
+      document.getElementById('npRepo').value = data.fullName;
+      document.getElementById('npDescription').value = data.description || '';
+      document.getElementById('npDirectory').value = `/home/user/projects/${data.name}`;
+
+      statusHint.textContent = `Found: ${data.fullName}${data.private ? ' (private)' : ''}`;
+      statusHint.className = 'form-hint success';
+    } catch (err) {
+      statusHint.textContent = err.message;
+      statusHint.className = 'form-hint error';
+    } finally {
+      fetchBtn.disabled = false;
+      fetchBtn.textContent = 'Fetch';
+    }
+  });
+
+  // Form submission
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const submitBtn = document.getElementById('newProjectSubmit');
+    submitBtn.disabled = true;
+
+    const cloneRepo = currentTab === 'github'
+      && document.getElementById('npCloneRepo').checked;
+
+    const isCloning = cloneRepo && document.getElementById('npRepo').value;
+    submitBtn.textContent = isCloning ? 'Cloning & Adding...' : 'Adding...';
+
+    const body = {
+      name: document.getElementById('npName').value.trim(),
+      slug: document.getElementById('npSlug').value.trim(),
+      repo: document.getElementById('npRepo').value.trim(),
+      directory: document.getElementById('npDirectory').value.trim() || undefined,
+      description: document.getElementById('npDescription').value.trim(),
+      color: document.getElementById('npColor').value,
+      defaultMode: document.getElementById('npDefaultMode').value,
+      cloneRepo: cloneRepo,
+    };
+
+    try {
+      const res = await fetch(`${API}/api/projects`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to add project');
+      }
+
+      closeModal();
+      if (!projects.some(p => p.slug === data.slug)) {
+        projects.push(data);
+        renderProjects();
+      }
+      notifManager.showToast('Project Added', `${data.name} has been added to the dashboard`, 'launch');
+    } catch (err) {
+      notifManager.showToast('Error', err.message, 'error');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Add Project';
+    }
+  });
+}
+
+function parseGitHubUrl(input) {
+  const shortMatch = input.match(/^([a-zA-Z0-9_.-]+)\/([a-zA-Z0-9_.-]+)$/);
+  if (shortMatch) {
+    return { owner: shortMatch[1], repo: shortMatch[2] };
+  }
+  const urlMatch = input.match(/github\.com\/([a-zA-Z0-9_.-]+)\/([a-zA-Z0-9_.-]+)/);
+  if (urlMatch) {
+    return { owner: urlMatch[1], repo: urlMatch[2].replace(/\.git$/, '') };
+  }
+  return null;
+}
+
+function formatRepoName(name) {
+  return name
+    .replace(/-/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function resetNewProjectForm() {
+  document.getElementById('newProjectForm').reset();
+  document.getElementById('githubUrlInput').value = '';
+  document.getElementById('githubFetchStatus').textContent = '';
+  document.getElementById('githubFetchStatus').className = 'form-hint';
+  document.getElementById('npColor').value = '#58a6ff';
+  document.getElementById('npColorPreview').style.background = '#58a6ff';
+  document.getElementById('npDirectory').placeholder = '/home/user/projects/my-project';
+  document.getElementById('newProjectSubmit').textContent = 'Add Project';
+  document.getElementById('newProjectSubmit').disabled = false;
 }

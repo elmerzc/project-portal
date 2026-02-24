@@ -81,7 +81,7 @@
 
       <!-- Projects View -->
       <div class="view active" id="projectsView">
-        <div class="view-toolbar">
+        <div class="view-toolbar" style="display:flex; align-items:center; justify-content:space-between; gap:16px;">
           <div class="search-wrap">
             <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
               <circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" stroke-width="1.5"/>
@@ -89,10 +89,17 @@
             </svg>
             <input type="text" class="search-input" id="projectSearch" placeholder="Search projects...">
           </div>
+          <button class="btn btn-accent" id="newProjectBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            New Project
+          </button>
         </div>
         <div class="projects-grid" id="projectsGrid"></div>
         <div class="empty-state" id="projectsEmpty" style="display:none;">
-          <p>No projects configured. Edit <code>config/projects.json</code> to add projects.</p>
+          <p>No projects configured. Click <strong>New Project</strong> to get started.</p>
         </div>
       </div>
 
@@ -298,6 +305,94 @@
           </div>
 
           <button type="submit" class="btn btn-accent btn-launch">Launch Session</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- New Project Modal -->
+    <div class="modal-overlay" id="newProjectOverlay">
+      <div class="modal new-project-modal">
+        <button class="modal-close" id="newProjectClose">&times;</button>
+        <h2 class="modal-title">New Project</h2>
+        <p class="modal-desc">Add a new project to the Command Center</p>
+
+        <!-- Mode Tabs -->
+        <div class="new-project-tabs">
+          <button class="tab-btn active" data-tab="github">From GitHub</button>
+          <button class="tab-btn" data-tab="manual">Manual Entry</button>
+        </div>
+
+        <!-- GitHub Tab -->
+        <div class="tab-panel active" id="githubTab">
+          <div class="form-group">
+            <label class="form-label">GitHub URL</label>
+            <div class="github-url-row">
+              <input type="text" class="form-input" id="githubUrlInput"
+                placeholder="https://github.com/owner/repo or owner/repo">
+              <button class="btn btn-sm btn-accent" id="fetchGithubBtn" type="button">Fetch</button>
+            </div>
+            <span class="form-hint" id="githubFetchStatus"></span>
+          </div>
+        </div>
+
+        <!-- Shared Form -->
+        <form id="newProjectForm" class="launch-form">
+          <div class="form-group">
+            <label class="form-label">Project Name</label>
+            <input type="text" class="form-input" id="npName" required placeholder="My Project">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Slug</label>
+            <input type="text" class="form-input" id="npSlug" required
+              placeholder="my-project" pattern="[a-z0-9\-]+"
+              title="Lowercase letters, numbers, and hyphens only">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Repository</label>
+            <input type="text" class="form-input" id="npRepo" placeholder="owner/repo">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Local Directory</label>
+            <input type="text" class="form-input" id="npDirectory"
+              placeholder="/home/user/projects/my-project">
+            <span class="form-hint">Leave blank to auto-generate from slug</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea class="form-textarea" id="npDescription" rows="2"
+              placeholder="Brief project description"></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group" style="flex:1">
+              <label class="form-label">Color</label>
+              <div class="color-picker-row">
+                <input type="color" id="npColor" value="#58a6ff" class="form-color-input">
+                <span class="color-preview" id="npColorPreview" style="background:#58a6ff"></span>
+              </div>
+            </div>
+            <div class="form-group" style="flex:1">
+              <label class="form-label">Default Mode</label>
+              <select class="form-select" id="npDefaultMode">
+                <option value="normal">Normal</option>
+                <option value="yolo">YOLO</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Clone checkbox (only shown in GitHub tab) -->
+          <div class="form-group" id="cloneCheckboxGroup">
+            <label class="clone-checkbox-label">
+              <input type="checkbox" id="npCloneRepo" checked>
+              <span>Clone repository to local directory</span>
+            </label>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-outline" id="newProjectCancel">Cancel</button>
+            <button type="submit" class="btn btn-accent btn-launch" id="newProjectSubmit">
+              Add Project
+            </button>
+          </div>
         </form>
       </div>
     </div>
