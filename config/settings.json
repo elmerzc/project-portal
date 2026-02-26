@@ -1,0 +1,13 @@
+{
+  "port": 3456,
+  "tmuxSession": "command-center",
+  "notifications": {
+    "sound": true,
+    "waitingForInput": true,
+    "errors": true,
+    "completion": true
+  },
+  "yoloWarning": true,
+  "pollInterval": 2000,
+  "maxSessions": 5
+}

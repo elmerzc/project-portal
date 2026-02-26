@@ -1,0 +1,15 @@
+{
+  "name": "command-center",
+  "version": "1.0.0",
+  "description": "Claude Code Command Center - Launch, manage, and monitor Claude Code sessions via tmux",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.4",
+    "node-pty": "^1.0.0"
+  }
+}

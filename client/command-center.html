@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Command Center | Claude Code Dashboard</title>
+  <link rel="stylesheet" href="css/command-center.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="sidebar-logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="3" width="20" height="14" rx="2"/>
+          <line x1="8" y1="21" x2="16" y2="21"/>
+          <line x1="12" y1="17" x2="12" y2="21"/>
+        </svg>
+        <span>Command Center</span>
+      </div>
+
+      <div class="sidebar-nav">
+        <button class="nav-btn active" data-view="projects">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/>
+            <rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+          Projects
+        </button>
+        <button class="nav-btn" data-view="sessions">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="4,17 10,11 4,5"/>
+            <line x1="12" y1="19" x2="20" y2="19"/>
+          </svg>
+          Active Sessions
+          <span class="nav-badge" id="sessionsBadge"></span>
+        </button>
+        <button class="nav-btn" data-view="notifications">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          Notifications
+          <span class="nav-badge" id="notifBadge"></span>
+        </button>
+        <button class="nav-btn" data-view="settings">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          Settings
+        </button>
+      </div>
+
+      <div class="sidebar-footer">
+        <a href="/" class="nav-link-back">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="19" y1="12" x2="5" y2="12"/>
+            <polyline points="12,19 5,12 12,5"/>
+          </svg>
+          Project Portal
+        </a>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="content">
+      <!-- Header -->
+      <header class="content-header">
+        <h1 class="page-title" id="pageTitle">Projects</h1>
+        <div class="header-actions">
+          <div class="connection-status" id="connectionStatus">
+            <span class="status-dot disconnected"></span>
+            <span>Disconnected</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Projects View -->
+      <div class="view active" id="projectsView">
+        <div class="view-toolbar" style="display:flex; align-items:center; justify-content:space-between; gap:16px;">
+          <div class="search-wrap">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="10.5" y1="10.5" x2="15" y2="15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <input type="text" class="search-input" id="projectSearch" placeholder="Search projects...">
+          </div>
+          <button class="btn btn-accent" id="newProjectBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            New Project
+          </button>
+        </div>
+        <div class="projects-grid" id="projectsGrid"></div>
+        <div class="empty-state" id="projectsEmpty" style="display:none;">
+          <p>No projects configured. Click <strong>New Project</strong> to get started.</p>
+        </div>
+      </div>
+
+      <!-- Active Sessions View -->
+      <div class="view" id="sessionsView">
+        <div class="sessions-list" id="sessionsList"></div>
+        <div class="empty-state" id="sessionsEmpty">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+            <polyline points="4,17 10,11 4,5"/>
+            <line x1="12" y1="19" x2="20" y2="19"/>
+          </svg>
+          <p>No active sessions. Launch one from the Projects view.</p>
+        </div>
+      </div>
+
+      <!-- Notifications View -->
+      <div class="view" id="notificationsView">
+        <div class="notifications-header">
+          <span id="notifCount">0 notifications</span>
+          <button class="btn btn-sm" id="markAllReadBtn">Mark all read</button>
+        </div>
+        <div class="notifications-list" id="notificationsList"></div>
+        <div class="empty-state" id="notifsEmpty">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <p>No notifications yet.</p>
+        </div>
+      </div>
+
+      <!-- Settings View -->
+      <div class="view" id="settingsView">
+        <div class="settings-panel">
+          <h2>Server Settings</h2>
+          <div class="settings-group">
+            <div class="setting-row">
+              <div class="setting-info">
+                <label>Port</label>
+                <span class="setting-desc">Server port (requires restart)</span>
+              </div>
+              <span class="setting-value" id="settingPort">3456</span>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <label>tmux Session</label>
+                <span class="setting-desc">Name of the tmux session</span>
+              </div>
+              <span class="setting-value" id="settingTmux">command-center</span>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <label>Max Sessions</label>
+                <span class="setting-desc">Maximum concurrent Claude Code sessions</span>
+              </div>
+              <span class="setting-value" id="settingMax">5</span>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <label>Poll Interval</label>
+                <span class="setting-desc">How often to check session status (ms)</span>
+              </div>
+              <span class="setting-value" id="settingPoll">2000</span>
+            </div>
+          </div>
+
+          <h2>Notification Preferences</h2>
+          <div class="settings-group">
+            <div class="setting-row">
+              <div class="setting-info">
+                <label>Sound Alerts</label>
+                <span class="setting-desc">Play sound when notification arrives</span>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="settingSound" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <label>Waiting for Input</label>
+                <span class="setting-desc">Notify when a session needs attention</span>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="settingWaiting" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <label>Error Alerts</label>
+                <span class="setting-desc">Notify when a session encounters an error</span>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="settingErrors" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <label>Session Complete</label>
+                <span class="setting-desc">Notify when a session finishes</span>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="settingComplete" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <h2>Browser Notifications</h2>
+          <div class="settings-group">
+            <div class="setting-row">
+              <div class="setting-info">
+                <label>Permission Status</label>
+                <span class="setting-desc">Browser notification permission</span>
+              </div>
+              <button class="btn btn-sm btn-accent" id="requestNotifPermission">Enable</button>
+            </div>
+          </div>
+
+          <h2>Quick Connect (iTerm2 / SSH)</h2>
+          <div class="settings-group">
+            <div class="code-block">
+              <code># Attach to command center via SSH<br>
+              ssh homepc -t "tmux attach -t command-center"<br><br>
+              # iTerm2 native tmux integration<br>
+              ssh homepc -t "tmux -CC attach -t command-center"</code>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Terminal Modal -->
+    <div class="terminal-overlay" id="terminalOverlay">
+      <div class="terminal-modal">
+        <div class="terminal-header">
+          <div class="terminal-title">
+            <span class="terminal-dot" id="terminalDot"></span>
+            <span id="terminalTitle">Session Terminal</span>
+          </div>
+          <div class="terminal-actions">
+            <button class="btn btn-sm" id="terminalDetach">Detach</button>
+            <button class="terminal-close" id="terminalClose">&times;</button>
+          </div>
+        </div>
+        <div class="terminal-body" id="terminalContainer"></div>
+        <div class="terminal-input-bar">
+          <input type="text" class="terminal-input" id="terminalInput" placeholder="Type a response and press Enter...">
+          <button class="btn btn-sm btn-accent" id="terminalSend">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Launch Modal -->
+    <div class="modal-overlay" id="launchOverlay">
+      <div class="modal launch-modal">
+        <button class="modal-close" id="launchClose">&times;</button>
+        <h2 class="modal-title">Launch Claude Code</h2>
+        <p class="modal-desc" id="launchProjectName"></p>
+        <form id="launchForm" class="launch-form">
+          <input type="hidden" id="launchSlug">
+          <input type="hidden" id="launchRepo">
+          <input type="hidden" id="launchDir">
+          <input type="hidden" id="launchColor">
+          <input type="hidden" id="launchName">
+
+          <div class="form-group">
+            <label class="form-label">Initial Prompt (optional)</label>
+            <textarea class="form-textarea" id="launchPrompt" placeholder="e.g., Review the latest changes and suggest improvements" rows="3"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Mode</label>
+            <div class="mode-selector">
+              <label class="mode-option">
+                <input type="radio" name="launchMode" value="normal" checked>
+                <div class="mode-card">
+                  <span class="mode-name">Normal</span>
+                  <span class="mode-desc">Claude asks before executing commands</span>
+                </div>
+              </label>
+              <label class="mode-option">
+                <input type="radio" name="launchMode" value="yolo">
+                <div class="mode-card mode-yolo">
+                  <span class="mode-name">YOLO Mode</span>
+                  <span class="mode-desc">Skip all permission prompts</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="yolo-warning" id="yoloWarning" style="display:none;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <div>
+              <strong>Warning:</strong> YOLO mode skips all permission prompts. Claude Code will execute commands without asking. Use with caution.
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-accent btn-launch">Launch Session</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- New Project Modal -->
+    <div class="modal-overlay" id="newProjectOverlay">
+      <div class="modal new-project-modal">
+        <button class="modal-close" id="newProjectClose">&times;</button>
+        <h2 class="modal-title">New Project</h2>
+        <p class="modal-desc">Add a new project to the Command Center</p>
+
+        <!-- Mode Tabs -->
+        <div class="new-project-tabs">
+          <button class="tab-btn active" data-tab="github">From GitHub</button>
+          <button class="tab-btn" data-tab="manual">Manual Entry</button>
+        </div>
+
+        <!-- GitHub Tab -->
+        <div class="tab-panel active" id="githubTab">
+          <div class="form-group">
+            <label class="form-label">GitHub URL</label>
+            <div class="github-url-row">
+              <input type="text" class="form-input" id="githubUrlInput"
+                placeholder="https://github.com/owner/repo or owner/repo">
+              <button class="btn btn-sm btn-accent" id="fetchGithubBtn" type="button">Fetch</button>
+            </div>
+            <span class="form-hint" id="githubFetchStatus"></span>
+          </div>
+        </div>
+
+        <!-- Shared Form -->
+        <form id="newProjectForm" class="launch-form">
+          <div class="form-group">
+            <label class="form-label">Project Name</label>
+            <input type="text" class="form-input" id="npName" required placeholder="My Project">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Slug</label>
+            <input type="text" class="form-input" id="npSlug" required
+              placeholder="my-project" pattern="[a-z0-9\-]+"
+              title="Lowercase letters, numbers, and hyphens only">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Repository</label>
+            <input type="text" class="form-input" id="npRepo" placeholder="owner/repo">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Local Directory</label>
+            <input type="text" class="form-input" id="npDirectory"
+              placeholder="/home/user/projects/my-project">
+            <span class="form-hint">Leave blank to auto-generate from slug</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea class="form-textarea" id="npDescription" rows="2"
+              placeholder="Brief project description"></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group" style="flex:1">
+              <label class="form-label">Color</label>
+              <div class="color-picker-row">
+                <input type="color" id="npColor" value="#58a6ff" class="form-color-input">
+                <span class="color-preview" id="npColorPreview" style="background:#58a6ff"></span>
+              </div>
+            </div>
+            <div class="form-group" style="flex:1">
+              <label class="form-label">Default Mode</label>
+              <select class="form-select" id="npDefaultMode">
+                <option value="normal">Normal</option>
+                <option value="yolo">YOLO</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Clone checkbox (only shown in GitHub tab) -->
+          <div class="form-group" id="cloneCheckboxGroup">
+            <label class="clone-checkbox-label">
+              <input type="checkbox" id="npCloneRepo" checked>
+              <span>Clone repository to local directory</span>
+            </label>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-outline" id="newProjectCancel">Cancel</button>
+            <button type="submit" class="btn btn-accent btn-launch" id="newProjectSubmit">
+              Add Project
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
+  <script src="js/websocket.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/terminal.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
