@@ -1018,6 +1018,141 @@ const PROJECTS = [
     "github_url": "https://github.com/elmerzc/warm-transfer-fallback",
     "github_repo": "elmerzc/warm-transfer-fallback",
     "spec_file": ""
+  },
+  {
+    "name": "Project Portal",
+    "description": "Web-based dashboard and command center for managing all of Elmer's projects. Includes project cards with progress tracking, feature status, suggestions system, and a Command Center for launching and monitoring Claude Code sessions via tmux.",
+    "category": "web-app",
+    "features": [
+      {
+        "name": "Card-based layout showing all projects",
+        "done": true
+      },
+      {
+        "name": "Progress bar showing completion percentage",
+        "done": true
+      },
+      {
+        "name": "Click-to-expand card showing full project details",
+        "done": true
+      },
+      {
+        "name": "GitHub repo link on each card",
+        "done": true
+      },
+      {
+        "name": "Feature list with done/pending status",
+        "done": true
+      },
+      {
+        "name": "Pending Features panel — view all pending across projects",
+        "done": true
+      },
+      {
+        "name": "Responsive design (mobile-friendly)",
+        "done": true
+      },
+      {
+        "name": "Dark theme (GitHub-inspired)",
+        "done": true
+      },
+      {
+        "name": "Summary stats bar (projects, done, pending, avg progress)",
+        "done": true
+      },
+      {
+        "name": "Search bar — filters by name, description, features",
+        "done": true
+      },
+      {
+        "name": "Sort dropdown — progress, name, last updated",
+        "done": true
+      },
+      {
+        "name": "Category filter pills (Voice AI, Web App, Workflow, Form, Docs)",
+        "done": true
+      },
+      {
+        "name": "Live last-pushed dates from GitHub API",
+        "done": true
+      },
+      {
+        "name": "Suggestion system with priority levels (localStorage)",
+        "done": true
+      },
+      {
+        "name": "Suggestions panel grouped by project, deletable",
+        "done": true
+      },
+      {
+        "name": "Auto-deploy via GitHub Actions on push to main",
+        "done": true
+      },
+      {
+        "name": "Build script — spec file pull from GitHub (checkbox parsing)",
+        "done": true
+      },
+      {
+        "name": "Export suggestions to repo (GitHub auto-commit via Netlify function)",
+        "done": true
+      },
+      {
+        "name": "Project timeline / changelog view",
+        "done": true
+      },
+      {
+        "name": "Netlify deploy status badge",
+        "done": true
+      },
+      {
+        "name": "Command Center — launch and monitor Claude Code sessions via tmux",
+        "done": true
+      },
+      {
+        "name": "Command Center — project cards with session status",
+        "done": true
+      },
+      {
+        "name": "Command Center — terminal view with live output",
+        "done": true
+      },
+      {
+        "name": "Command Center — notifications system (sound, browser, in-app)",
+        "done": true
+      },
+      {
+        "name": "Command Center — YOLO mode for sessions",
+        "done": true
+      },
+      {
+        "name": "Command Center — add new projects (GitHub clone or manual)",
+        "done": true
+      },
+      {
+        "name": "Command Center — auto-sync all projects from projects.js",
+        "done": true
+      },
+      {
+        "name": "Command Center — project detail modal with features and suggestions",
+        "done": true
+      },
+      {
+        "name": "Command Center — mobile responsive (bottom tab bar for iPhone)",
+        "done": true
+      },
+      {
+        "name": "Auto-update via GitHub webhook on push",
+        "done": false
+      },
+      {
+        "name": "Real-time project progress sync from spec files",
+        "done": false
+      }
+    ],
+    "progress": 94,
+    "github_url": "https://github.com/elmerzc/project-portal",
+    "github_repo": "elmerzc/project-portal",
+    "spec_file": "project-portal-v1.3.md"
   }
 ];
 
