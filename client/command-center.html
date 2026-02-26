@@ -397,6 +397,51 @@
       </div>
     </div>
 
+    <!-- Project Detail Modal -->
+    <div class="modal-overlay" id="projectDetailOverlay">
+      <div class="modal project-detail-modal">
+        <button class="modal-close" id="projectDetailClose">&times;</button>
+        <div class="detail-header">
+          <div class="detail-title-wrap">
+            <h2 class="modal-title" id="detailTitle"></h2>
+            <span class="project-category-tag" id="detailCategory"></span>
+          </div>
+          <a class="btn btn-sm btn-outline" id="detailGithub" href="#" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <p class="modal-desc" id="detailDesc"></p>
+        <div class="detail-progress-wrap">
+          <div class="project-progress-bar" style="height:10px">
+            <div class="project-progress-fill" id="detailProgressFill"></div>
+          </div>
+          <span class="project-progress-label" id="detailProgressLabel"></span>
+        </div>
+        <div class="detail-actions" id="detailActions"></div>
+        <div class="detail-sections">
+          <div class="detail-section">
+            <h3>Completed</h3>
+            <ul class="feature-list done-list" id="detailDone"></ul>
+          </div>
+          <div class="detail-section">
+            <h3>Pending</h3>
+            <ul class="feature-list pending-list" id="detailPending"></ul>
+          </div>
+          <div class="detail-section" id="detailSuggestionsSection" style="display:none">
+            <h3>Suggestions</h3>
+            <ul class="feature-list suggestions-list" id="detailSuggestions"></ul>
+          </div>
+        </div>
+        <div class="detail-add-idea">
+          <input type="text" class="form-input" id="detailIdeaInput" placeholder="Add a suggestion...">
+          <select class="form-select" id="detailIdeaPriority" style="width:auto">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+          <button class="btn btn-sm btn-accent" id="detailIdeaAdd">Add</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
   </div>

@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupNavigation();
   setupLaunchModal();
   setupNewProjectModal();
+  setupProjectDetailModal();
   setupSearch();
   setupKeyboardShortcuts();
   setupNotificationControls();
@@ -229,27 +230,48 @@ function renderProjects() {
         ${formatStatus(session.status)}
       </span>` : '';
 
+    const progressHTML = p.progress !== undefined ? `
+        <div class="project-progress-row">
+          <div class="project-progress-bar">
+            <div class="project-progress-fill ${getProgressClass(p.progress)}" style="width: ${p.progress}%"></div>
+          </div>
+          <span class="project-progress-label">${p.progress}%</span>
+        </div>` : '';
+
+    const categoryHTML = p.category ? `<span class="project-category-tag" style="color:${p.color};background:${p.color}18;border:1px solid ${p.color}40">${p.category}</span>` : '';
+
     return `
-      <div class="project-card" style="animation-delay: ${i * 0.04}s; border-left: 3px solid ${p.color}">
+      <div class="project-card" data-project-idx="${i}" style="animation-delay: ${i * 0.04}s; border-left: 3px solid ${p.color}; cursor: pointer;">
         <div class="project-card-header">
           <div>
             <div class="project-name">${p.name}</div>
-            <div class="project-repo">${p.repo}</div>
+            <div class="project-repo">${p.repo} ${categoryHTML}</div>
           </div>
           ${statusHTML}
         </div>
         <div class="project-desc">${p.description}</div>
-        <div class="project-dir">${p.directory}</div>
+        ${progressHTML}
         <div class="project-actions">
+          ${p.github_url || p.repo ? `<a class="btn btn-sm btn-outline" href="${p.github_url || 'https://github.com/' + p.repo}" target="_blank" rel="noopener" onclick="event.stopPropagation()">GitHub</a>` : ''}
           ${session
-            ? `<button class="btn btn-sm btn-outline" onclick="openTerminalForSession('${session.id}', '${escAttr(p.name)}', '${p.color}')">View Output</button>
-               <button class="btn btn-sm btn-danger" onclick="killSession('${session.id}')">Stop</button>`
-            : `<button class="btn btn-sm btn-accent" onclick="openLaunchModal(${JSON.stringify(p).replace(/"/g, '&quot;')})">Launch Claude Code</button>`
+            ? `<button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); openTerminalForSession('${session.id}', '${escAttr(p.name)}', '${p.color}')">View Output</button>
+               <button class="btn btn-sm btn-danger" onclick="event.stopPropagation(); killSession('${session.id}')">Stop</button>`
+            : `<button class="btn btn-sm btn-accent" onclick="event.stopPropagation(); openLaunchModal(${JSON.stringify(p).replace(/"/g, '&quot;')})">Launch Claude Code</button>`
           }
         </div>
       </div>
     `;
   }).join('');
+
+  // Make cards clickable to open detail modal
+  grid.querySelectorAll('.project-card[data-project-idx]').forEach(card => {
+    card.addEventListener('click', (e) => {
+      // Don't open modal if clicking a button inside the card
+      if (e.target.closest('button') || e.target.closest('a')) return;
+      const idx = parseInt(card.dataset.projectIdx);
+      openProjectDetail(filtered[idx]);
+    });
+  });
 }
 
 function formatStatus(status) {
@@ -265,6 +287,14 @@ function formatStatus(status) {
 
 function escAttr(str) {
   return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+function getProgressClass(progress) {
+  if (progress >= 100) return 'progress-100';
+  if (progress >= 75) return 'progress-high';
+  if (progress >= 50) return 'progress-mid';
+  if (progress >= 25) return 'progress-low';
+  return 'progress-minimal';
 }
 
 // --- Session Rendering ---
@@ -568,6 +598,7 @@ function setupKeyboardShortcuts() {
     // Escape closes modals
     if (e.key === 'Escape') {
       closeLaunchModal();
+      closeProjectDetail();
       document.getElementById('newProjectOverlay').classList.remove('active');
     }
 
@@ -764,6 +795,159 @@ function formatRepoName(name) {
   return name
     .replace(/-/g, ' ')
     .replace(/\b\w/g, c => c.toUpperCase());
+}
+
+// === PROJECT DETAIL MODAL ===
+const STORAGE_KEY = 'project-portal-suggestions';
+let currentDetailProject = null;
+
+function getSuggestions() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  } catch { return []; }
+}
+
+function saveSuggestions(suggestions) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(suggestions));
+}
+
+function openProjectDetail(project) {
+  currentDetailProject = project;
+  const overlay = document.getElementById('projectDetailOverlay');
+
+  document.getElementById('detailTitle').textContent = project.name;
+  document.getElementById('detailDesc').textContent = project.description;
+
+  // Category tag
+  const catTag = document.getElementById('detailCategory');
+  if (project.category) {
+    catTag.textContent = project.category;
+    catTag.style.color = project.color;
+    catTag.style.background = project.color + '18';
+    catTag.style.border = `1px solid ${project.color}40`;
+    catTag.style.display = '';
+  } else {
+    catTag.style.display = 'none';
+  }
+
+  // GitHub link
+  const ghLink = document.getElementById('detailGithub');
+  if (project.github_url || project.repo) {
+    ghLink.href = project.github_url || `https://github.com/${project.repo}`;
+    ghLink.style.display = '';
+  } else {
+    ghLink.style.display = 'none';
+  }
+
+  // Progress
+  const fill = document.getElementById('detailProgressFill');
+  const label = document.getElementById('detailProgressLabel');
+  const progress = project.progress || 0;
+  fill.style.width = progress + '%';
+  fill.className = `project-progress-fill ${getProgressClass(progress)}`;
+  label.textContent = progress + '%';
+
+  // Launch button in detail
+  const actionsEl = document.getElementById('detailActions');
+  const session = sessions.find(s => s.slug === project.slug && s.status !== 'completed');
+  if (session) {
+    actionsEl.innerHTML = `
+      <button class="btn btn-sm btn-outline" onclick="openTerminalForSession('${session.id}', '${escAttr(project.name)}', '${project.color}')">View Output</button>
+      <button class="btn btn-sm btn-danger" onclick="killSession('${session.id}')">Stop Session</button>`;
+  } else {
+    actionsEl.innerHTML = `<button class="btn btn-sm btn-accent" onclick="closeProjectDetail(); openLaunchModal(${JSON.stringify(project).replace(/"/g, '&quot;')})">Launch Claude Code</button>`;
+  }
+
+  // Features
+  const features = project.features || [];
+  const done = features.filter(f => f.done);
+  const pending = features.filter(f => !f.done);
+
+  document.getElementById('detailDone').innerHTML = done.length
+    ? done.map(f => `<li>${f.name}</li>`).join('')
+    : '<li style="color:var(--text-muted);background:none">No completed features</li>';
+
+  document.getElementById('detailPending').innerHTML = pending.length
+    ? pending.map(f => `<li>${f.name}</li>`).join('')
+    : '<li style="color:var(--text-muted);background:none">No pending features</li>';
+
+  // Suggestions
+  renderDetailSuggestions(project.name);
+
+  overlay.classList.add('active');
+}
+
+function renderDetailSuggestions(projectName) {
+  const suggestions = getSuggestions().filter(s => s.project === projectName);
+  const section = document.getElementById('detailSuggestionsSection');
+  const list = document.getElementById('detailSuggestions');
+
+  if (suggestions.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = '';
+  list.innerHTML = suggestions.map(s => {
+    const priorityTag = `<span class="suggestion-priority-tag priority-tag-${s.priority}">${s.priority}</span>`;
+    return `<li>${s.text}${priorityTag}<button class="suggestion-delete-btn" data-id="${s.id}">&times;</button></li>`;
+  }).join('');
+
+  // Delete handlers
+  list.querySelectorAll('.suggestion-delete-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const updated = getSuggestions().filter(s => s.id !== btn.dataset.id);
+      saveSuggestions(updated);
+      renderDetailSuggestions(projectName);
+    });
+  });
+}
+
+function closeProjectDetail() {
+  document.getElementById('projectDetailOverlay').classList.remove('active');
+  currentDetailProject = null;
+}
+
+function setupProjectDetailModal() {
+  const overlay = document.getElementById('projectDetailOverlay');
+  const closeBtn = document.getElementById('projectDetailClose');
+
+  closeBtn.addEventListener('click', closeProjectDetail);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeProjectDetail();
+  });
+
+  // Add suggestion inline
+  document.getElementById('detailIdeaAdd').addEventListener('click', () => {
+    const input = document.getElementById('detailIdeaInput');
+    const priority = document.getElementById('detailIdeaPriority');
+    const text = input.value.trim();
+    if (!text || !currentDetailProject) return;
+
+    const suggestions = getSuggestions();
+    suggestions.push({
+      id: Date.now().toString(),
+      project: currentDetailProject.name,
+      text,
+      priority: priority.value,
+      createdAt: new Date().toISOString(),
+    });
+    saveSuggestions(suggestions);
+
+    input.value = '';
+    priority.value = 'low';
+    renderDetailSuggestions(currentDetailProject.name);
+    notifManager.showToast('Suggestion Added', `Added to ${currentDetailProject.name}`, 'info');
+  });
+
+  // Enter key to add
+  document.getElementById('detailIdeaInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('detailIdeaAdd').click();
+    }
+  });
 }
 
 function resetNewProjectForm() {

@@ -942,59 +942,150 @@ body {
 /* Responsive */
 @media (max-width: 768px) {
   .header {
-    padding: 16px 20px;
+    padding: 14px 16px;
     flex-direction: column;
-    gap: 12px;
-    align-items: flex-start;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .header-left {
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-size: 1.25rem;
+  }
+
+  .header-right {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+
+  .header-right::-webkit-scrollbar {
+    display: none;
+  }
+
+  .header-right .btn {
+    flex-shrink: 0;
+    padding: 8px 12px;
+    font-size: 0.8rem;
   }
 
   .stats-bar {
-    padding: 16px 20px;
-    gap: 10px;
+    padding: 12px 16px;
+    gap: 8px;
   }
 
   .stat-card {
-    padding: 10px 16px;
-    min-width: 100px;
+    padding: 8px 12px;
+    min-width: 80px;
+    border-radius: 8px;
   }
 
   .stat-value {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+  }
+
+  .stat-label {
+    font-size: 0.65rem;
+  }
+
+  .stat-bar-card {
+    min-width: 120px;
   }
 
   .toolbar {
-    padding: 12px 20px;
+    padding: 12px 16px;
     flex-direction: column;
     align-items: stretch;
+    gap: 10px;
   }
 
   .search-wrap {
     flex: 1;
+    min-width: 0;
   }
 
   .toolbar-right {
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .category-filters {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-wrap: nowrap;
+    padding-bottom: 2px;
+  }
+
+  .category-filters::-webkit-scrollbar {
+    display: none;
   }
 
   .main {
-    padding: 20px;
+    padding: 16px;
   }
 
   .cards-grid {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 12px;
+  }
+
+  .card {
+    padding: 16px;
+    gap: 10px;
+  }
+
+  .card-name {
+    font-size: 1rem;
+  }
+
+  .card-desc {
+    font-size: 0.8rem;
+    -webkit-line-clamp: 2;
+  }
+
+  /* Modals slide up from bottom on mobile */
+  .modal-overlay {
+    padding: 0;
+    align-items: flex-end;
   }
 
   .modal {
-    padding: 24px;
-    margin: 16px;
+    padding: 20px 16px;
+    margin: 0;
+    max-height: 90vh;
+    border-radius: 12px 12px 0 0;
   }
 
   .modal-header {
     flex-direction: column;
   }
 
-  .modal-overlay {
-    padding: 16px;
+  .modal-title {
+    font-size: 1.25rem;
+  }
+
+  .pending-modal,
+  .suggestions-modal,
+  .timeline-modal,
+  .idea-modal {
+    max-width: 100%;
+  }
+
+  .suggestions-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* Feature lists more compact */
+  .feature-list li {
+    padding: 6px 10px;
+    font-size: 0.8rem;
   }
 }

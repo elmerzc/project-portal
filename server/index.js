@@ -11,12 +11,92 @@ const NotificationService = require('./notification-service');
 
 // Load configuration
 const settings = require('../config/settings.json');
-let projects = [];
-try {
-  projects = require('../config/projects.json');
-} catch {
-  projects = [];
+
+// Parse portal projects from projects.js (the source of truth for all projects)
+function loadPortalProjects() {
+  try {
+    const raw = fs.readFileSync(path.join(__dirname, '../projects.js'), 'utf-8');
+    // Extract the PROJECTS array and CATEGORIES object
+    const sandbox = {};
+    new Function('module', 'exports', raw + '\nmodule.exports = { PROJECTS, CATEGORIES };')(
+      sandbox, {}
+    );
+    return sandbox.exports || { PROJECTS: [], CATEGORIES: {} };
+  } catch (e) {
+    console.error('Failed to parse projects.js:', e.message);
+    return { PROJECTS: [], CATEGORIES: {} };
+  }
 }
+
+// Load command center overrides (manually configured directories, modes, etc.)
+function loadCCOverrides() {
+  try {
+    delete require.cache[require.resolve('../config/projects.json')];
+    return require('../config/projects.json');
+  } catch {
+    return [];
+  }
+}
+
+// Convert a portal project to command center format, applying any overrides
+function toCommandCenterProject(portal, categories, override) {
+  const slug = portal.name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  const categoryColor = categories[portal.category]?.color || '#58a6ff';
+  const repoName = portal.github_repo ? portal.github_repo.split('/')[1] : slug;
+
+  return {
+    name: portal.name,
+    slug,
+    repo: portal.github_repo || '',
+    directory: override?.directory || `/home/ezdev/projects/${repoName}`,
+    defaultMode: override?.defaultMode || 'normal',
+    color: override?.color || categoryColor,
+    description: portal.description || '',
+    // Extra fields from portal
+    category: portal.category || '',
+    progress: portal.progress || 0,
+    github_url: portal.github_url || '',
+    features: portal.features || [],
+  };
+}
+
+// Build merged project list: portal projects + any CC-only projects
+function buildProjectList() {
+  const { PROJECTS: portalProjects, CATEGORIES: categories } = loadPortalProjects();
+  const overrides = loadCCOverrides();
+
+  // Index overrides by slug and by repo for matching
+  const overrideBySlug = {};
+  const overrideByRepo = {};
+  overrides.forEach(o => {
+    overrideBySlug[o.slug] = o;
+    if (o.repo) overrideByRepo[o.repo] = o;
+  });
+
+  // Convert portal projects, applying any overrides
+  const merged = portalProjects.map(p => {
+    const slug = p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const override = overrideBySlug[slug] || overrideByRepo[p.github_repo] || null;
+    return toCommandCenterProject(p, categories, override);
+  });
+
+  // Add any CC-only projects that aren't in the portal
+  const portalSlugs = new Set(merged.map(p => p.slug));
+  const portalRepos = new Set(merged.map(p => p.repo));
+  overrides.forEach(o => {
+    if (!portalSlugs.has(o.slug) && !portalRepos.has(o.repo)) {
+      merged.push(o);
+    }
+  });
+
+  return merged;
+}
+
+let projects = buildProjectList();
 
 // Initialize services
 const app = express();
@@ -54,12 +134,8 @@ app.use(express.static(path.join(__dirname, '..')));
  * GET /api/projects - List all configured projects
  */
 app.get('/api/projects', (req, res) => {
-  // Reload projects from disk
-  try {
-    delete require.cache[require.resolve('../config/projects.json')];
-    projects = require('../config/projects.json');
-  } catch { /* use cached */ }
-
+  // Re-merge from portal + overrides on each request (picks up projects.js changes)
+  projects = buildProjectList();
   res.json(projects);
 });
 
