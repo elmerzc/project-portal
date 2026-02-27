@@ -161,7 +161,7 @@ app.post('/api/projects', async (req, res) => {
       return res.status(409).json({ error: `Project with slug "${slug}" already exists` });
     }
 
-    const projectDir = directory || `/home/user/projects/${slug}`;
+    const projectDir = directory || `/home/ezdev/projects/${slug}`;
 
     // Clone the repo if requested
     if (cloneRepo && repo) {
@@ -250,6 +250,7 @@ app.get('/api/github/repo/:owner/:repo', async (req, res) => {
 app.post('/api/sessions/launch', (req, res) => {
   try {
     const { projectName, slug, repoUrl, workingDirectory, yoloMode, initialPrompt, color } = req.body;
+    console.log('[LAUNCH] Request:', { projectName, slug, workingDirectory, yoloMode, initialPrompt: initialPrompt?.slice(0, 50) });
 
     if (!projectName) {
       return res.status(400).json({ error: 'projectName is required' });
@@ -265,6 +266,8 @@ app.post('/api/sessions/launch', (req, res) => {
       color,
     });
 
+    console.log('[LAUNCH] Success:', { id: session.id, windowName: session.windowName, dir: session.workingDirectory });
+
     // Notify all clients
     notificationService.send({
       type: 'launched',
@@ -279,6 +282,7 @@ app.post('/api/sessions/launch', (req, res) => {
 
     res.json(session);
   } catch (e) {
+    console.log('[LAUNCH] Error:', e.message);
     res.status(400).json({ error: e.message });
   }
 });

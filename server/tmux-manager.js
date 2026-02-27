@@ -43,7 +43,12 @@ class TmuxManager {
     const id = this._generateId();
     const windowName = this._windowName(slug || projectName.toLowerCase().replace(/\s+/g, '-'));
 
-    // Check if window already exists
+    // Check if session already exists (in-memory check first, then tmux)
+    for (const [, s] of this.sessions) {
+      if (s.windowName === windowName && s.status !== 'completed') {
+        throw new Error(`Session for "${projectName}" is already running`);
+      }
+    }
     try {
       const existing = execSync(
         `tmux list-windows -t ${TMUX_SESSION} -F "#{window_name}"`,
@@ -61,27 +66,21 @@ class TmuxManager {
       throw new Error(`Maximum sessions (${settings.maxSessions}) reached. Stop a session first.`);
     }
 
-    // Build the claude command
+    // Build the claude command (always interactive — never pipe stdin)
     let claudeCmd = 'claude';
     if (yoloMode) {
       claudeCmd = 'claude --dangerously-skip-permissions';
     }
 
-    // If there's an initial prompt, pipe it
-    if (initialPrompt) {
-      // Escape single quotes in the prompt
-      const escaped = initialPrompt.replace(/'/g, "'\\''");
-      claudeCmd = `echo '${escaped}' | ${claudeCmd}`;
-    }
-
     // Set working directory and launch
-    const dir = workingDirectory || `/home/user/projects/${slug}`;
-    const fullCmd = `cd '${dir}' 2>/dev/null || true; ${claudeCmd}`;
+    // Unset CLAUDECODE env var so Claude doesn't think it's a nested session
+    const dir = workingDirectory || `/home/ezdev/projects/${slug}`;
 
+    // Use tmux send-keys approach instead of passing command in quotes
+    // to avoid shell escaping issues with project names/prompts
     try {
-      execSync(
-        `tmux new-window -t ${TMUX_SESSION} -n '${windowName}' '${fullCmd.replace(/'/g, "'\\''")}'`
-      );
+      execSync(`tmux new-window -t ${TMUX_SESSION} -n ${windowName}`);
+      execSync(`tmux send-keys -t ${TMUX_SESSION}:${windowName} "unset CLAUDECODE; cd '${dir.replace(/'/g, "'\\''")}' 2>/dev/null || true; ${claudeCmd}" Enter`);
     } catch (e) {
       throw new Error(`Failed to launch session: ${e.message}`);
     }
@@ -105,24 +104,68 @@ class TmuxManager {
 
     this.sessions.set(id, session);
 
-    // Auto-accept the "Bypass Permissions" prompt for YOLO mode sessions.
-    // Claude Code shows an interactive TUI selection:
-    //   ❯ 1. No, exit
-    //     2. Yes, I accept
-    // We send Down (to select option 2) then Enter (to confirm) after a delay
-    // to allow the prompt to render.
+    // Post-launch: handle YOLO bypass and initial prompt via send-keys.
+    // We need to wait for Claude to fully start before sending anything.
+    const sendInitialPrompt = () => {
+      if (initialPrompt) {
+        try {
+          // Use tmux load-buffer + paste-buffer to safely send any text
+          // This avoids all shell escaping issues with quotes, $, !, etc.
+          const tmpFile = `/tmp/claude-prompt-${id}`;
+          require('fs').writeFileSync(tmpFile, initialPrompt);
+          execSync(`tmux load-buffer -b prompt-buf ${tmpFile}`);
+          execSync(`tmux paste-buffer -b prompt-buf -t ${TMUX_SESSION}:${windowName}`);
+          execSync(`tmux send-keys -t ${TMUX_SESSION}:${windowName} Enter`);
+          try { require('fs').unlinkSync(tmpFile); } catch {}
+        } catch { /* window may be gone */ }
+      }
+    };
+
+    // Wait for Claude to be fully ready (showing input prompt) before sending anything
+    const waitForClaude = (callback, attempt = 0) => {
+      if (attempt >= 20) return; // give up after ~20s
+      try {
+        const output = this.captureOutput(windowName, 50);
+        if (output.includes('Try "') || output.includes('❯') || output.includes('> ')) {
+          callback();
+        } else {
+          setTimeout(() => waitForClaude(callback, attempt + 1), 1000);
+        }
+      } catch { /* window may be gone */ }
+    };
+
     if (yoloMode) {
-      setTimeout(() => {
+      // Auto-accept the "Bypass Permissions" prompt for YOLO mode sessions.
+      // Claude Code shows an interactive TUI selection:
+      //   ❯ 1. No, exit
+      //     2. Yes, I accept
+      // Send Down to move to option 2, wait, then Enter to confirm.
+      const acceptBypass = (attempt = 0) => {
+        if (attempt >= 15) return;
         try {
           const output = this.captureOutput(windowName, 50);
           if (output.includes('Bypass Permissions') || output.includes('Yes, I accept')) {
-            execSync(
-              `tmux send-keys -t ${TMUX_SESSION}:${windowName} Down Enter`
-            );
-            session.bypassAccepted = true;
+            // Send Down arrow, wait 500ms, then send Enter — separately to avoid race
+            execSync(`tmux send-keys -t ${TMUX_SESSION}:${windowName} Down`);
+            setTimeout(() => {
+              try {
+                execSync(`tmux send-keys -t ${TMUX_SESSION}:${windowName} Enter`);
+                session.bypassAccepted = true;
+                // Now wait for Claude to be fully ready, then send initial prompt
+                if (initialPrompt) {
+                  setTimeout(() => waitForClaude(() => sendInitialPrompt()), 2000);
+                }
+              } catch { /* window may be gone */ }
+            }, 500);
+          } else {
+            setTimeout(() => acceptBypass(attempt + 1), 1000);
           }
         } catch { /* window may be gone */ }
-      }, 2500);
+      };
+      setTimeout(() => acceptBypass(), 3000);
+    } else if (initialPrompt) {
+      // Normal mode: wait for Claude to be ready, then send the initial prompt
+      setTimeout(() => waitForClaude(() => sendInitialPrompt()), 3000);
     }
 
     return session;

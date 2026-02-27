@@ -111,7 +111,9 @@ function onInit(data) {
 }
 
 function onSessionLaunched(session) {
-  sessions.push(session);
+  if (!sessions.find(s => s.id === session.id)) {
+    sessions.push(session);
+  }
   renderSessions();
   renderProjects();
   updateSessionsBadge();
@@ -456,10 +458,17 @@ function setupLaunchModal() {
         throw new Error(data.error || 'Launch failed');
       }
 
+      // Add session immediately from POST response (don't wait for WebSocket)
+      if (!sessions.find(s => s.id === data.id)) {
+        sessions.push(data);
+      }
+
       closeLaunchModal();
       notifManager.showToast('Launched', `${data.projectName} session started`, 'launch');
 
-      // Switch to sessions view
+      // Switch to sessions view and render
+      renderSessions();
+      updateSessionsBadge();
       switchView('sessions');
     } catch (err) {
       notifManager.showToast('Launch Failed', err.message, 'error');
