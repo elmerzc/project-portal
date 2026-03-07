@@ -369,6 +369,28 @@ app.post('/api/notifications/read', (req, res) => {
 });
 
 /**
+ * DELETE /api/notifications - Clear all notification history
+ */
+app.delete('/api/notifications', (req, res) => {
+  notificationService.clearAll();
+  io.emit('notifications:cleared');
+  res.json({ success: true });
+});
+
+/**
+ * GET /api/health - Server health check
+ */
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    uptime: process.uptime(),
+    activeSessions: tmuxManager.listAll().filter(s => s.status !== 'completed').length,
+    totalProjects: projects.length,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+/**
  * GET /api/settings - Get current settings
  */
 app.get('/api/settings', (req, res) => {
@@ -433,6 +455,7 @@ io.on('connection', (socket) => {
 
 // --- Start server ---
 const PORT = settings.port;
+const TMUX_SESSION = settings.tmuxSession;
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`\n  Command Center running at:`);
@@ -445,8 +468,6 @@ server.listen(PORT, '0.0.0.0', () => {
   // Start session monitoring
   sessionMonitor.start();
 });
-
-const TMUX_SESSION = settings.tmuxSession;
 
 // Graceful shutdown
 process.on('SIGINT', () => {

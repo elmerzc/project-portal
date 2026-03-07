@@ -88,6 +88,13 @@ class NotificationService {
   }
 
   /**
+   * Clear all notification history
+   */
+  clearAll() {
+    this.history = [];
+  }
+
+  /**
    * Get unread count
    */
   unreadCount() {
