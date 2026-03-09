@@ -8,6 +8,7 @@ let sessions = [];
 let notifications = [];
 let activeView = 'projects';
 let projectSearchQuery = '';
+let activeCategoryFilter = null;
 
 // API base URL
 const API = '';
@@ -36,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupNewProjectModal();
   setupProjectDetailModal();
   setupSearch();
+  setupCategoryFilters();
   setupKeyboardShortcuts();
   setupNotificationControls();
 
@@ -206,7 +208,16 @@ function renderProjects() {
   const grid = document.getElementById('projectsGrid');
   const empty = document.getElementById('projectsEmpty');
 
+  renderCategoryFilters();
+
   let filtered = [...projects];
+
+  // Category filter
+  if (activeCategoryFilter) {
+    filtered = filtered.filter(p => p.category === activeCategoryFilter);
+  }
+
+  // Search filter
   if (projectSearchQuery) {
     const q = projectSearchQuery.toLowerCase();
     filtered = filtered.filter(p =>
@@ -590,6 +601,43 @@ function loadSettings() {
     btn.textContent = 'Denied';
     btn.disabled = true;
   }
+}
+
+// --- Category Filters ---
+function setupCategoryFilters() {
+  renderCategoryFilters();
+}
+
+function renderCategoryFilters() {
+  const container = document.getElementById('ccCategoryFilters');
+  if (!container) return;
+
+  // Collect unique categories from projects
+  const categories = {};
+  projects.forEach(p => {
+    if (p.category && !categories[p.category]) {
+      categories[p.category] = p.color || '#58a6ff';
+    }
+  });
+
+  const allActive = !activeCategoryFilter;
+  let html = `<button class="cc-cat-btn ${allActive ? 'active' : ''}" data-cat="all"${allActive ? ' style="background:var(--accent);color:var(--bg)"' : ''}>All</button>`;
+
+  Object.entries(categories).forEach(([cat, color]) => {
+    const isActive = activeCategoryFilter === cat;
+    const style = isActive ? `background:${color};color:var(--bg)` : '';
+    html += `<button class="cc-cat-btn ${isActive ? 'active' : ''}" data-cat="${cat}" style="${style}">${cat}</button>`;
+  });
+
+  container.innerHTML = html;
+
+  container.querySelectorAll('.cc-cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeCategoryFilter = btn.dataset.cat === 'all' ? null : btn.dataset.cat;
+      renderCategoryFilters();
+      renderProjects();
+    });
+  });
 }
 
 // --- Search ---
