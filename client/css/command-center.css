@@ -243,6 +243,36 @@ body {
   color: var(--text-muted);
 }
 
+/* Category Filters */
+.cc-category-filters {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.cc-cat-btn {
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.cc-cat-btn:hover {
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
+.cc-cat-btn.active {
+  border-color: transparent;
+  font-weight: 600;
+}
+
 /* Projects Grid */
 .projects-grid {
   display: grid;
